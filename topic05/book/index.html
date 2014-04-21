@@ -1,0 +1,450 @@
+ <!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+   
+     <title> Lab-05 </title>
+   
+     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+     <link rel="stylesheet" href="./style/semantic/css/semantic.min.css" type="text/css">  
+     <link rel="stylesheet" href="./style/custom/main.css" type="text/css"> 
+   
+     <script src="./style/custom/jquery-2.1.0.min.js"></script> 
+     <script src="./style/custom/jquery.address-1.6.min.js"></script>
+     <script src="./style/semantic/javascript/semantic.min.js"></script>
+   
+     <link rel="stylesheet" href="./style/highlight/school_book.css">
+     <script src="./style/highlight/highlight.pack.js"></script> 
+     <script>hljs.initHighlightingOnLoad();</script>
+   
+     <script src="./style/custom/common.js"> </script> 
+     <script src="./style/custom/main.js"> </script> 
+  </head>
+  <body>
+  <nav class="ui fixed top pointing borderless inverted menu">
+    <header class="header item"> <a href="../index.html">HTTP APIs</a></header>
+    <div class="right tab-menu menu">
+          <a class="item" data-tab="Lab-05"> Lab-05 </a>
+          <a class="item" data-tab="01"> 01 </a>
+          <a class="item" data-tab="02"> 02 </a>
+          <a class="item" data-tab="03"> 03 </a>
+          <a class="item" data-tab="04"> 04 </a>
+          <a class="item" data-tab="05"> 05 </a>
+          <a class="item" data-tab="06"> 06 </a>
+          <a class="item" data-tab="07"> 07 </a>
+          <a class="item" data-tab="Exercises"> Exercises </a>
+    </div>
+  </nav>
+
+  <br>
+
+	  <section data-tab="Lab-05" class="ui tab stacked moodle-book segment">
+	     <h1>Objectives</h1>
+<ul>
+<li>Implement a simple coffeemate API in Play</li>
+<li>Translate the coffemate objects itnto Json format.</li>
+<li>Generate and trace requests to the API using the chrome browser.</li>
+</ul>
+	  </section>
+	  <section data-tab="01" class="ui tab stacked moodle-book segment">
+	     <h1>Initial Version of Play Project</h1>
+<p>Create a new play project in the usual way - call this project 'coffeemate-service'.</p>
+<p>Make sure you can launch the project in the usual way, and also that you can run the tests and browse the database (which will be empty).</p>
+<p>Introduce the following model class:</p>
+<pre><code class="java">package models;
+
+import java.io.Serializable;
+import javax.persistence.*;
+import play.db.jpa.Model;
+
+@Entity
+public class Coffee extends Model
+{
+  public String name;
+  public String shop;
+  public double rating;
+  public double price;
+  public int    favourite;
+
+  public Coffee(String coffeeName, String shop, double rating, double price, int favourite)
+  {
+    this.name      = coffeeName;
+    this.shop      = shop;
+    this.rating    = rating;
+    this.price     = price;
+    this.favourite = favourite;
+  }
+}
+</code></pre>
+
+<p>... and the following test to verify that the model is operating correctly:</p>
+<pre><code class="java">import org.junit.*;
+import java.util.*;
+import play.test.*;
+import models.*;
+
+public class CoffeeTest extends UnitTest
+{
+  @Test
+  public void testCreate()
+  {
+    Coffee coffee = new Coffee (&quot;one&quot;, &quot;here&quot;, 3.5, 2.0, 0);
+    coffee.save();
+    Coffee one = Coffee.findById(coffee.id);
+    assertEquals (&quot;one&quot;, one.name);
+  }
+}
+</code></pre>
+
+<p>Run the app in test mode, and make sure the test passes.</p>
+	  </section>
+	  <section data-tab="02" class="ui tab stacked moodle-book segment">
+	     <h1>Guava Library equals method</h1>
+<p>Often, the JDK libraries can be augmented with various extensions and utilities. Guava is one of the most prominent:</p>
+<ul>
+<li><a href="https://code.google.com/p/guava-libraries/wiki/GuavaExplained">https://code.google.com/p/guava-libraries/wiki/GuavaExplained</a></li>
+</ul>
+<p>as it contains a range of useful classes. To use Guava in play, open the conf/dependencies.yml file:</p>
+<pre><code># Application dependencies
+
+require:
+    - play
+</code></pre>
+
+<p>and add on a single entry at the end:</p>
+<pre><code>    - com.google.guava -&gt; guava 14.0.1   
+</code></pre>
+
+<p>make sure you line it up precisely - 4 leading spaces required. For this to be reflected in your project you need to do two things:</p>
+<ul>
+<li>enter 'play deps' into the command line inside your project</li>
+<li>enter 'play eclipsify' likewise</li>
+<li>refresh the project in eclipse</li>
+</ul>
+<p>It will not cause any noticeable change in the project, although you should see some new jar files in the 'lib' folder.</p>
+<p>We will use guava methods sparingly - but one useful one right away. Open Coffee.java, and import this class with the other imports:</p>
+<pre><code class="java">import com.google.common.base.Objects;
+</code></pre>
+
+<p>Then include this new method on Coffee:</p>
+<pre><code class="java">  @Override
+  public boolean equals(final Object obj)
+  {
+    if (obj instanceof Coffee)
+    {
+      final Coffee other = (Coffee) obj;
+      return Objects.equal(name,      other.name) 
+          &amp;&amp; Objects.equal(shop,      other.shop)
+          &amp;&amp; Objects.equal(rating,    other.rating)
+          &amp;&amp; Objects.equal(price,     other.price)           
+          &amp;&amp; Objects.equal(favourite, other.favourite);                     
+    }
+    else
+    {
+      return false;
+    }
+  } 
+</code></pre>
+
+<p>We have equipped our Model class with a useful 'equals' method - which will allow us to easily compare model Coffee objects. This will be particularly useful when writing tests.</p>
+<p>Here is a rework of the singe test we have written:</p>
+<pre><code class="java">  @Test
+  public void testCreate()
+  {
+    Coffee coffee = new Coffee (&quot;one&quot;, &quot;here&quot;, 3.5, 2.0, 0);
+    coffee.save();
+    Coffee one = Coffee.findById(coffee.id);
+    assertEquals (coffee, one);
+  }
+</code></pre>
+
+<p>The only change is the last line - which now does a full compare of the two coffee objects.</p>
+	  </section>
+	  <section data-tab="03" class="ui tab stacked moodle-book segment">
+	     <h1>New Route</h1>
+<p>Next we introduce a new route to read a coffee object:</p>
+<pre><code>GET     /api/coffees                           CoffeeServiceAPI.getCoffees
+</code></pre>
+
+<p>Place this in the routes file - towards the top.</p>
+<p>This is the corresponding controller:</p>
+<pre><code class="java">public class CoffeeServiceAPI extends Controller
+{
+  public static void getCoffees()
+  {
+    List&lt;Coffee&gt; coffee = Coffee.findAll();
+    renderText(coffee.size());
+  }
+}
+</code></pre>
+
+<p>You may also wish to enable the default 'in memory' database at this stage in application.conf:</p>
+<pre><code>db=mem
+</code></pre>
+
+<p>Run the app now, and see what you get when you browse to:</p>
+<ul>
+<li><a href="http://localhost:9000/api/coffees">http://localhost:9000/api/coffees</a></li>
+</ul>
+<p>You may see something like this:</p>
+<p><img alt="" src="img/00.png"></p>
+	  </section>
+	  <section data-tab="04" class="ui tab stacked moodle-book segment">
+	     <h1>Test Data</h1>
+<p>To seed our application with some test data - we can bring in bootstrap.java into the app folder:</p>
+<pre><code class="java">import java.util.List;
+
+import play.*;
+import play.jobs.*;
+import play.test.*;
+
+import models.*;
+
+@OnApplicationStart
+public class Bootstrap extends Job 
+{ 
+  public void doJob()
+  {
+    Fixtures.loadModels(&quot;data.yml&quot;);
+  }
+}
+</code></pre>
+
+<p>.. and some test data in the conf/data.yml:</p>
+<pre><code>Coffee(c1):
+    name      : one
+    shop      : here
+    price     : 2.0
+    rating    : 3.5
+    favourite : 0
+
+Coffee(c2):
+    name      : two
+    shop      : there
+    price     : 3.0
+    rating    : 4.5
+    favourite : 1
+</code></pre>
+
+<p>This procedure should be familiar. Launch the app again and browse to:</p>
+<ul>
+<li><a href="http://localhost:9000/api/coffees">http://localhost:9000/api/coffees</a></li>
+</ul>
+<p>This time we should see the number 2:</p>
+<p><img alt="" src="img/01.png"></p>
+<p>Browse the database as well and verify that the two coffes'e have been loaded:</p>
+<ul>
+<li><a href="http://localhost:9000/@db">http://localhost:9000/@db</a></li>
+</ul>
+	  </section>
+	  <section data-tab="05" class="ui tab stacked moodle-book segment">
+	     <h1>toString Method</h1>
+<p>Back in Coffee, we can introduce a method, often included as a companion to equals(), called toString():</p>
+<pre><code class="java">  public String toString()
+  {
+    return Objects.toStringHelper(this)
+        .add(&quot;Id&quot;, id)
+        .add(&quot;name&quot;,      name)
+        .add(&quot;shop&quot;,      shop)
+        .add(&quot;rating&quot;,    rating)
+        .add(&quot;price&quot;,     price)
+        .add(&quot;favourite&quot;, favourite).toString();
+  } 
+</code></pre>
+
+<p>This method will return a readable string version of any Coffee object. Useful for logging, testing or other purposes.</p>
+<p>We are going to use it immediately to turn a Coffee object into a string, and send it in this form to a browser. Change the CoffeeService controller as follows:</p>
+<pre><code class="java">public class CoffeeServiceAPI extends Controller
+{
+  public static void getCoffees()
+  {
+    List&lt;Coffee&gt; coffees = Coffee.findAll();
+    renderText(coffees.get(0).toString());
+  }
+}
+</code></pre>
+
+<p>Here we are returning the first coffee object in the database. Try browsing to </p>
+<ul>
+<li><a href="http://localhost:9000/api/coffees">http://localhost:9000/api/coffees</a></li>
+</ul>
+<p>and we should see:</p>
+<p><img alt="" src="img/02.png"></p>
+<p>Please note you will almost certainly have to restart the application for this to work correctly. Inspect the source of the page. Can you see what is going on?</p>
+<p>Back in the controller, we can simplify the renderText call:</p>
+<pre><code class="java">    renderText(coffees.get(0));
+</code></pre>
+
+<p>As this method expects a String, toString will be automatically called whenever an object is passed.</p>
+	  </section>
+	  <section data-tab="06" class="ui tab stacked moodle-book segment">
+	     <h1>Parameters</h1>
+<p>Introduce a new method into the controller to retrieve a specific Coffee object based on an id:</p>
+<pre><code class="java">  public static void coffee (Long id)
+  {
+   Coffee coffee = Coffee.findById(id);
+   renderText (coffee);
+  }
+</code></pre>
+
+<p>... and a matching route:</p>
+<pre><code>GET     /api/coffee/{id}                       CoffeeServiceAPI.coffee
+</code></pre>
+
+<p>You have seen this type of route before - id will be replaced by a number when the route is triggered.</p>
+<p>Try it now (restart the app first):</p>
+<ul>
+<li><a href="http://localhost:9000/api/coffee/1">http://localhost:9000/api/coffee/1</a></li>
+</ul>
+<p>This should show:</p>
+<p><img alt="" src="img/03.png"></p>
+<p>Try reading the object with id 2, or 0, or 3.</p>
+<p>Add some more coffees to the data.yml file. Verify that they can be read.</p>
+	  </section>
+	  <section data-tab="07" class="ui tab stacked moodle-book segment">
+	     <h1>JSON</h1>
+<p>The format in which our Coffee is returned is something we made up, or rather made up using conventions og the Guava toString library. When attempting to communicate over a public protocol like http, a more robust format would be needed. Java Script Object Notation is one simple standard:</p>
+<ul>
+<li>
+<p><a href="http://www.json.org/">http://www.json.org/</a></p>
+</li>
+<li>
+<p><a href="http://stackoverflow.com/questions/1695883/what-is-json-can-you-explain-it-to-a-newbie">http://stackoverflow.com/questions/1695883/what-is-json-can-you-explain-it-to-a-newbie</a></p>
+</li>
+</ul>
+<p>Producing and consuming JSON is painless in JavaScript, but can be tedious in Java. To ease the burden, we will use the Gson library</p>
+<ul>
+<li><a href="https://code.google.com/p/google-gson/">https://code.google.com/p/google-gson/</a></li>
+</ul>
+<p>Gson is already part of the play framework, so we do not need to download it.</p>
+<p>Create a new package in your app folder called 'utils', and bring in the following class which encapsulates our usage of Gson:</p>
+<pre><code class="java">package utils;
+
+import java.lang.reflect.Type;
+import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import models.Coffee;
+
+public class JsonParsers
+{
+  static Gson gson = new Gson();
+
+  public static String user2Json(Object obj)
+  {
+    return gson.toJson(obj);
+  }  
+
+  public static Coffee json2Coffee(String json)
+  {
+    return gson.fromJson(json, Coffee.class);    
+  }
+
+  public static String coffee2Json(Object obj)
+  {
+    return gson.toJson(obj);
+  }  
+
+  public static List&lt;Coffee&gt; json2Coffees(String json)
+  {
+    Type collectionType = new TypeToken&lt;List&lt;Coffee&gt;&gt;() {}.getType();
+    return gson.fromJson(json, collectionType);    
+  }  
+}
+</code></pre>
+
+<p>This should compile without errors.</p>
+<p>The two methods this class provides will enable us to easily transform a Coffee object to/from JSON format.</p>
+<p>Try it out now - here is another version of the CoffeeService.coffee method:</p>
+<pre><code class="java">  public static void coffee (Long id)
+  {
+   Coffee coffee = Coffee.findById(id);
+   renderJSON (JsonParsers.coffee2Json(coffee));
+  }
+</code></pre>
+
+<p>You will need to import JsonParsers at the top of the class:</p>
+<pre><code>import utils.JsonParsers;
+</code></pre>
+
+<p>Now try browsing here:</p>
+<ul>
+<li><a href="http://localhost:9000/api/coffee/1">http://localhost:9000/api/coffee/1</a></li>
+</ul>
+<p>This should show:</p>
+<p><img alt="" src="img/04.png"></p>
+<p>It differs only slightly - but whereas previously he had an ad-hoc format for serializing the object, this version adheres strictly to JSON conventions.</p>
+<p>We need one more class in utils, which you can introduce now:</p>
+<pre><code class="java">package utils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+
+import play.data.binding.Global;
+import play.data.binding.TypeBinder;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
+@Global
+public class GsonBinder implements TypeBinder&lt;JsonElement&gt;
+{
+  public Object bind(String name, Annotation[] notes, String value, Class toClass, Type toType) throws Exception
+  {
+    return new JsonParser().parse(value);
+  }
+}
+</code></pre>
+
+<p>The significance of this will be apparent later.</p>
+	  </section>
+	  <section data-tab="Exercises" class="ui tab stacked moodle-book segment">
+	     <h1>Exercises</h1>
+<p>This is an archive of the lab so far:</p>
+<ul>
+<li><a href="archives/coffeemate-service-lab05.zip">coffeemate-service-lab-05</a></li>
+</ul>
+<h2>Trace Request</h2>
+<p>Todays lectures showed a trace sequence on Spacebook. Using the same tools, see if you can trace:</p>
+<ul>
+<li><a href="http://localhost:9000/api/coffee/1">http://localhost:9000/api/coffee/1</a></li>
+</ul>
+<p>You should be aiming to see something like this:</p>
+<p><img alt="" src="img/05.png"></p>
+<h2>Postman</h2>
+<p>Visit the Chrome Web Store, and search for the "Postman Rest Client" application:</p>
+<p><img alt="" src="img/06.png"></p>
+<p>Install it (the first one above) and explore how to send the same request using this tools. See if you can figure out the various options</p>
+<h2>Coffee List</h2>
+<p>Introduce a new route which can support the following request:</p>
+<ul>
+<li><a href="http://localhost:9000/api/coffees">http://localhost:9000/api/coffees</a></li>
+</ul>
+<p>It should return a list of all of the coffees in the database.</p>
+	  </section>
+  <div class="ui fixed bottom borderless menu">'
+    <div class="ui small item"> 
+    <p id="footertext">
+    Prepared by  Eamonn de Leastar (edeleastar@wit.ie). Except where otherwise noted, this content is licensed under a  
+     <a  href="http://creativecommons.org/licenses/by-nc/4.0/" title="External link to http://creativecommons.org/licenses/by-nc/4.0/" 
+       target="_blank">Creative Commons Attribution-NonCommercial 4.0 License
+     </a>
+     </p>
+    </div>
+  </div>   
+    
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-49703418-7']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>  </body>
+ </html>

@@ -1,0 +1,949 @@
+ <!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+   
+     <title> Lab-08 </title>
+   
+     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+     <link rel="stylesheet" href="./style/semantic/css/semantic.min.css" type="text/css">  
+     <link rel="stylesheet" href="./style/custom/main.css" type="text/css"> 
+   
+     <script src="./style/custom/jquery-2.1.0.min.js"></script> 
+     <script src="./style/custom/jquery.address-1.6.min.js"></script>
+     <script src="./style/semantic/javascript/semantic.min.js"></script>
+   
+     <link rel="stylesheet" href="./style/highlight/school_book.css">
+     <script src="./style/highlight/highlight.pack.js"></script> 
+     <script>hljs.initHighlightingOnLoad();</script>
+   
+     <script src="./style/custom/common.js"> </script> 
+     <script src="./style/custom/main.js"> </script> 
+  </head>
+  <body>
+  <nav class="ui fixed top pointing borderless inverted menu">
+    <header class="header item"> <a href="../index.html">Android Donation Features</a></header>
+    <div class="right tab-menu menu">
+          <a class="item" data-tab="Lab-08"> Lab-08 </a>
+          <a class="item" data-tab="01"> 01 </a>
+          <a class="item" data-tab="02"> 02 </a>
+          <a class="item" data-tab="03"> 03 </a>
+          <a class="item" data-tab="04"> 04 </a>
+          <a class="item" data-tab="05"> 05 </a>
+          <a class="item" data-tab="06"> 06 </a>
+          <a class="item" data-tab="07"> 07 </a>
+          <a class="item" data-tab="08"> 08 </a>
+          <a class="item" data-tab="09"> 09 </a>
+          <a class="item" data-tab="10"> 10 </a>
+          <a class="item" data-tab="Exercises"> Exercises </a>
+    </div>
+  </nav>
+
+  <br>
+
+	  <section data-tab="Lab-08" class="ui tab stacked moodle-book segment">
+	     <h1>Objectives</h1>
+<ul>
+<li>Continue the implementation of Donation to include the follwing views:<ul>
+<li>welcome</li>
+<li>sign up</li>
+<li>login</li>
+</ul>
+</li>
+<li>Support these views with a User model, and validate the users on log in</li>
+</ul>
+	  </section>
+	  <section data-tab="01" class="ui tab stacked moodle-book segment">
+	     <h1>Exercise 1</h1>
+<p>Run the app and insert amounts of varying lengths (1, 222, 23, 2323). Note that the second column - payment method -may be displayed at different positions. If this happens, fix it.</p>
+<p>Hint: each row is laid out by a row_donate.xml layout. The easiest way to fix this would be to experiment with they layout, and have the text fields aligned with the edges and not with eachother.</p>
+<h1>Solution</h1>
+<p>This is a revised version of the row_layout.xml file:</p>
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot; &gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/row_amount&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentTop=&quot;true&quot;
+        android:layout_marginLeft=&quot;48dp&quot;
+        android:layout_marginTop=&quot;20dp&quot;
+        android:text=&quot;@string/defaultAmount&quot; /&gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/row_method&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignBaseline=&quot;@+id/row_amount&quot;
+        android:layout_alignBottom=&quot;@+id/row_amount&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_marginRight=&quot;79dp&quot;
+        android:text=&quot;@string/defaultMethod&quot; /&gt;
+
+&lt;/RelativeLayout&gt;
+</code></pre>
+	  </section>
+	  <section data-tab="02" class="ui tab stacked moodle-book segment">
+	     <h1>Exercise 2</h1>
+<p>When a donation is accepted, set the amount on screen to 0 (in both picker and text field).</p>
+<h1>Solution</h1>
+<p>Add these two lines at the end of Donate.donateButton()</p>
+<pre><code class="java">    amountText.setText(&quot;&quot;);
+    amountPicker.setValue(0);
+</code></pre>
+	  </section>
+	  <section data-tab="03" class="ui tab stacked moodle-book segment">
+	     <h1>Exercise 3</h1>
+<p>When you navigate from the Donate activity to reports, there will be no menu available. Bring in a menu, with two options 'Settings' and 'Donate' - Donate should bring you back to the donate screen.</p>
+<h1>Solution</h1>
+<p>Introduce a new string constant into strings.xml:</p>
+<pre><code class="xml">    &lt;string name=&quot;menuDonate&quot;&gt;Donate&lt;/string&gt;
+</code></pre>
+
+<p>Then a new menu - report.xml -</p>
+<pre><code class="xml">&lt;menu xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; &gt;
+
+    &lt;item
+        android:id=&quot;@+id/action_settings&quot;
+        android:orderInCategory=&quot;100&quot;
+        android:showAsAction=&quot;never&quot;
+        android:title=&quot;@string/menuSettings&quot;/&gt;
+
+    &lt;item
+        android:id=&quot;@+id/menuDonate&quot;
+        android:orderInCategory=&quot;100&quot;
+        android:showAsAction=&quot;never&quot;
+        android:title=&quot;@string/menuDonate&quot;/&gt;    
+
+&lt;/menu&gt;
+</code></pre>
+
+<p>The report activity will then need two new methods:</p>
+<pre><code class="java">  @Override
+  public boolean onCreateOptionsMenu(Menu menu)
+  {
+    getMenuInflater().inflate(R.menu.report, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item)
+  {
+    switch (item.getItemId())
+    {
+      case R.id.menuDonate : startActivity (new Intent(this, Donate.class));
+                             break;
+    }
+    return true;
+  }  
+</code></pre>
+	  </section>
+	  <section data-tab="04" class="ui tab stacked moodle-book segment">
+	     <h1>Exercise 4</h1>
+<p>Introduce a new welcome screen - which should display a greeting + give the user 2 options (as simple buttons)</p>
+<ul>
+<li>Signup</li>
+<li>Login</li>
+</ul>
+<p>When Login is pressed, the app should take you directly to the Donate activity (for the moment).</p>
+<h1>Solution</h1>
+<p>This is the new layout - welcome_layout.xml</p>
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    android:id=&quot;@+id/RelativeLayout&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;
+    android:orientation=&quot;vertical&quot; &gt;
+
+    &lt;Button
+        android:id=&quot;@+id/welcomeLogin&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentTop=&quot;true&quot;
+        android:layout_centerHorizontal=&quot;true&quot;
+        android:layout_marginTop=&quot;102dp&quot;
+        android:onClick=&quot;welcomeButtonPressed&quot;
+        android:text=&quot;@string/welcomeLogin&quot; /&gt;
+
+    &lt;Button
+        android:id=&quot;@+id/welcomeSignup&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_centerHorizontal=&quot;true&quot;
+        android:layout_centerVertical=&quot;true&quot;
+        android:text=&quot;@string/welcomeSignup&quot; /&gt;
+
+&lt;/RelativeLayout&gt;
+</code></pre>
+
+<p>It requires these two strings in strings.xml:</p>
+<pre><code class="xml">    &lt;string name=&quot;welcomeLogin&quot;&gt;Login&lt;/string&gt;
+    &lt;string name=&quot;welcomeSignup&quot;&gt;Sign up&lt;/string&gt;
+</code></pre>
+
+<p>Here is a minimal version of the activity:</p>
+<pre><code class="java">package app.activities;
+
+import app.donation.R;
+import android.app.Activity;
+import android.os.Bundle;
+
+public class Welcome extends Activity
+{
+  @Override
+  public void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_welcome);
+  }
+}
+</code></pre>
+
+<p>We would like this to be the first activity to appear when the app is launched. This is configured in AndroidManifest.xml.</p>
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    package=&quot;app.donation&quot;
+    android:versionCode=&quot;1&quot;
+    android:versionName=&quot;1.0&quot; &gt;
+
+    &lt;uses-sdk
+        android:minSdkVersion=&quot;17&quot;
+        android:targetSdkVersion=&quot;17&quot; /&gt;
+
+    &lt;application
+        android:name=&quot;app.main.DonationApp&quot;
+        android:allowBackup=&quot;true&quot;
+        android:icon=&quot;@drawable/ic_launcher&quot;
+        android:label=&quot;@string/app_name&quot;
+        android:theme=&quot;@style/AppTheme&quot; &gt;
+        &lt;activity
+            android:name=&quot;app.activities.Donate&quot;
+            android:label=&quot;@string/app_name&quot; &gt;
+            &lt;intent-filter&gt;
+                &lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
+                &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&gt;
+            &lt;/intent-filter&gt;
+        &lt;/activity&gt;
+        &lt;activity
+            android:name=&quot;app.activities.Report&quot;
+            android:label=&quot;@string/donateTitle&quot; &gt;
+        &lt;/activity&gt;
+    &lt;/application&gt;
+
+&lt;/manifest&gt;
+</code></pre>
+
+<p>In the above, you can see that "Donate" is the MAIN activity, and we have no entry for Welcome yet. Here is a revision to do what we want:</p>
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    package=&quot;app.donation&quot;
+    android:versionCode=&quot;1&quot;
+    android:versionName=&quot;1.0&quot; &gt;
+
+    &lt;uses-sdk
+        android:minSdkVersion=&quot;17&quot;
+        android:targetSdkVersion=&quot;17&quot; /&gt;
+
+    &lt;application
+        android:name=&quot;app.main.DonationApp&quot;
+        android:allowBackup=&quot;true&quot;
+        android:icon=&quot;@drawable/ic_launcher&quot;
+        android:label=&quot;@string/app_name&quot;
+        android:theme=&quot;@style/AppTheme&quot; &gt;
+
+        &lt;activity
+            android:name=&quot;app.activities.Welcome&quot;
+            android:label=&quot;@string/donateTitle&quot; &gt;
+           &lt;intent-filter&gt;
+                &lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
+                &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&gt;
+            &lt;/intent-filter&gt;
+        &lt;/activity&gt;
+        &lt;activity
+            android:name=&quot;app.activities.Donate&quot;
+            android:label=&quot;@string/app_name&quot; &gt;
+        &lt;/activity&gt;
+        &lt;activity
+            android:name=&quot;app.activities.Report&quot;
+            android:label=&quot;@string/donateTitle&quot; &gt;
+        &lt;/activity&gt;
+    &lt;/application&gt;
+
+&lt;/manifest&gt;
+</code></pre>
+
+<p>We have three activities - with Welcome denoted as the Main via these attributes:</p>
+<pre><code class="xml">           &lt;intent-filter&gt;
+                &lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
+                &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&gt;
+            &lt;/intent-filter&gt;
+</code></pre>
+
+<p>Notice that we have 'donateTitle' as the Label for all activities. It is currently set to:</p>
+<pre><code class="xml">    &lt;string name=&quot;donateTitle&quot;&gt;Welcome Homer&lt;/string&gt;
+</code></pre>
+
+<p>in strings. Perhaps we should change this now to:</p>
+<pre><code class="xml">    &lt;string name=&quot;donateTitle&quot;&gt;Donation App&lt;/string&gt;
+</code></pre>
+
+<p>It may make sense to have a different label for each activity as you evolve the app.</p>
+<p>Finally, we need an event handler for the Login button. Edit activity_welcome and introduce a new field for the login button:</p>
+<pre><code class="xml">    &lt;Button
+        android:id=&quot;@+id/welcomeLogin&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentTop=&quot;true&quot;
+        android:layout_centerHorizontal=&quot;true&quot;
+        android:layout_marginTop=&quot;102dp&quot;
+        android:onClick=&quot;loginPressed&quot;
+        android:text=&quot;@string/welcomeLogin&quot; /&gt;
+</code></pre>
+
+<p>(the onClick attribute above).</p>
+<p>Then bring in the method into Welcome activity:</p>
+<pre><code class="java">  public void loginPressed (View view) 
+  {
+    Toast toast = Toast.makeText(this, &quot;Login Pressed!&quot;, Toast.LENGTH_SHORT);
+    toast.show();
+  }
+</code></pre>
+
+<p>Test all of this now.</p>
+<p>Finally, replace the loginPressed method implementation with the code to actually start the donate activity:</p>
+<pre><code class="java">   startActivity (new Intent(this, Donate.class));
+</code></pre>
+
+<p>This completes exercise 4.</p>
+	  </section>
+	  <section data-tab="05" class="ui tab stacked moodle-book segment">
+	     <h1>Exercise 5 - Part 1 Layout</h1>
+<p>Introduce a Signup Activity, which should present the user with:</p>
+<ul>
+<li>First Name</li>
+<li>Last Name</li>
+<li>Email</li>
+<li>
+<p>Password</p>
+</li>
+<li>
+<p>a 'Register' button.</p>
+</li>
+</ul>
+<p>Pressing Register should take you directly to "Donate" activity. Pressing Register should take you directly to "Donate" activity. Also, refactor the Welcome screen such that the 'signup' button takes you to this screen.</p>
+<h1>Solution</h1>
+<p>In the Exercise 4 we created and activity by separately creating layout and a class, and building each from scratch. This time we will use the create activity wizard. In doing so, keep a close eye the files the wizard generates or modifies.</p>
+<p>Select the app.activities package, and select "File-&gt;New-&gt;Other" ... and follow the following entries:</p>
+<p><img alt="" src="img/00.png">
+<img alt="" src="img/01.png">
+<img alt="" src="img/02.png"></p>
+<p>The last screen you should look at very carefully:</p>
+<p><img alt="" src="img/03.png"></p>
+<p>Once you press Finish - hunt down each of the files mentioned here and inspect them.</p>
+<p>Open the layout designer, and design a screen to look like this:</p>
+<p><img alt="" src="img/04.png"></p>
+<p>In particular, that we do not have a 'label' for first name (like we would have in a web app), but rather set a 'Hint'. This can be set by right clicking on the edit field and selecting "Edit Hint" - something like this:</p>
+<p><img alt="" src="img/05.png"></p>
+<p>When placing the text field on the canvas, select "Person Name" from the 'Text Widgets' palette</p>
+<p>This is the layout so far:</p>
+<pre><code class="xml">&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;
+    android:paddingBottom=&quot;@dimen/activity_vertical_margin&quot;
+    android:paddingLeft=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingRight=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingTop=&quot;@dimen/activity_vertical_margin&quot;
+    tools:context=&quot;.Signup&quot; &gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/signupTitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentTop=&quot;true&quot;
+        android:layout_marginLeft=&quot;32dp&quot;
+        android:layout_marginTop=&quot;28dp&quot;
+        android:text=&quot;@string/signupTitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceMedium&quot; /&gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/signupSubtitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignLeft=&quot;@+id/signupTitle&quot;
+        android:layout_below=&quot;@+id/signupTitle&quot;
+        android:layout_marginLeft=&quot;55dp&quot;
+        android:layout_marginTop=&quot;30dp&quot;
+        android:text=&quot;@string/signupSubtitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceSmall&quot; /&gt;
+
+    &lt;EditText
+        android:id=&quot;@+id/firstName&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_below=&quot;@+id/signupSubtitle&quot;
+        android:layout_marginTop=&quot;40dp&quot;
+        android:ems=&quot;10&quot;
+        android:hint=&quot;@string/signupFirstname&quot;
+        android:inputType=&quot;textPersonName&quot; /&gt;
+
+&lt;/RelativeLayout&gt;
+</code></pre>
+
+<p>and strings.xml has these supporting definitions:</p>
+<pre><code class="xml">    &lt;string name=&quot;title_activity_signup&quot;&gt;Signup&lt;/string&gt;
+    &lt;string name=&quot;signupTitle&quot;&gt;Sign up for the Donation App&lt;/string&gt;
+    &lt;string name=&quot;signupSubtitle&quot;&gt;Enter details below&lt;/string&gt;
+    &lt;string name=&quot;signupFirstname&quot;&gt;First name&lt;/string&gt;
+</code></pre>
+
+<p>Complete the layout now, selecte "Person Name", "Email" and "Password" from the text widgets pallette:</p>
+<p><img alt="" src="img/06.png"></p>
+<p>The email and password ids are exceptionally "Email" and "Password" (leading upper case letter). This is to avoid conflict with built in ids.</p>
+<p>Set the 'Hints' as you go, and fix up the strings as we have been doing. This is the final version of the layout:</p>
+<pre><code class="xml">&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;
+    android:paddingBottom=&quot;@dimen/activity_vertical_margin&quot;
+    android:paddingLeft=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingRight=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingTop=&quot;@dimen/activity_vertical_margin&quot;
+    tools:context=&quot;.Signup&quot; &gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/signupTitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentTop=&quot;true&quot;
+        android:layout_marginLeft=&quot;32dp&quot;
+        android:layout_marginTop=&quot;28dp&quot;
+        android:text=&quot;@string/signupTitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceMedium&quot; /&gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/signupSubtitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignLeft=&quot;@+id/signupTitle&quot;
+        android:layout_below=&quot;@+id/signupTitle&quot;
+        android:layout_marginLeft=&quot;55dp&quot;
+        android:layout_marginTop=&quot;30dp&quot;
+        android:text=&quot;@string/signupSubtitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceSmall&quot; /&gt;
+
+    &lt;EditText
+        android:id=&quot;@+id/firstName&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_below=&quot;@+id/signupSubtitle&quot;
+        android:layout_marginTop=&quot;40dp&quot;
+        android:ems=&quot;10&quot;
+        android:hint=&quot;@string/signupFirstname&quot;
+        android:inputType=&quot;textPersonName&quot;/&gt;
+
+        &lt;requestFocus /&gt;
+
+    &lt;EditText
+        android:id=&quot;@+id/lastName&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignLeft=&quot;@+id/firstName&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_below=&quot;@+id/firstName&quot;
+        android:ems=&quot;10&quot;
+        android:hint=&quot;@string/signupLastName&quot;
+        android:inputType=&quot;textPersonName&quot; &gt;
+
+    &lt;/EditText&gt;
+
+    &lt;EditText
+        android:id=&quot;@+id/Email&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignLeft=&quot;@+id/lastName&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_below=&quot;@+id/lastName&quot;
+        android:ems=&quot;10&quot;
+        android:hint=&quot;@string/signupEmail&quot;
+        android:inputType=&quot;textEmailAddress&quot; /&gt;
+
+    &lt;EditText
+        android:id=&quot;@+id/Password&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignLeft=&quot;@+id/Email&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_below=&quot;@+id/Email&quot;
+        android:ems=&quot;10&quot;
+        android:hint=&quot;@string/signupPassword&quot;
+        android:inputType=&quot;textPassword&quot; /&gt;
+
+    &lt;Button
+        android:id=&quot;@+id/register&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentBottom=&quot;true&quot;
+        android:layout_centerHorizontal=&quot;true&quot;
+        android:layout_marginBottom=&quot;28dp&quot;
+        android:onClick=&quot;signupButtonPressed&quot;
+        android:text=&quot;@string/signupRegister&quot; /&gt;
+
+&lt;/RelativeLayout&gt;
+</code></pre>
+
+<p>and the supporting Strings:</p>
+<pre><code class="xml">    ...
+    &lt;string name=&quot;title_activity_signup&quot;&gt;Signup&lt;/string&gt;
+    &lt;string name=&quot;signupTitle&quot;&gt;Sign up for the Donation App&lt;/string&gt;
+    &lt;string name=&quot;signupSubtitle&quot;&gt;Enter details below&lt;/string&gt;
+    &lt;string name=&quot;signupFirstname&quot;&gt;First name&lt;/string&gt;
+    &lt;string name=&quot;signupLastName&quot;&gt;Last Name&lt;/string&gt;
+    &lt;string name=&quot;signupEmail&quot;&gt;Email&lt;/string&gt;
+    &lt;string name=&quot;signupPassword&quot;&gt;Password&lt;/string&gt;
+    &lt;string name=&quot;signupRegister&quot;&gt;Register&lt;/string&gt;
+</code></pre>
+	  </section>
+	  <section data-tab="06" class="ui tab stacked moodle-book segment">
+	     <h1>Exercise 5 - Part 2 Activity Class</h1>
+<p>...</p>
+<p>continued ... Pressing Register should take you directly to "Donate" activity. Also, refactor the Welcome screen such that the 'signup' button takes you to this screen.</p>
+<h1>Solution</h1>
+<p>The previous step generated this Activity class:</p>
+<pre><code class="java">public class Signup extends Activity
+{
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_signup);
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu)
+  {
+    // Inflate the menu; this adds items to the action bar if it is present.
+    getMenuInflater().inflate(R.menu.signup, menu);
+    return true;
+  }
+}
+</code></pre>
+
+<p>This class may be in the wrong package - if so, move it (drag and drop) to 'app.activities' now.</p>
+<p>We are not going to support a menu in this class - so we will delete the onCreateOptionsMenu method now. Similarly, we can delete the generate menu - signup.xml - in the menu folder.</p>
+<p>Now we can set our event handler in the activity_signup.xml layout:</p>
+<pre><code class="xml">    &lt;Button
+        android:id=&quot;@+id/signup&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentBottom=&quot;true&quot;
+        android:layout_centerHorizontal=&quot;true&quot;
+        android:layout_marginBottom=&quot;28dp&quot;
+        android:onClick=&quot;registerPressed&quot;
+        android:text=&quot;@string/signupRegister&quot; /&gt;
+</code></pre>
+
+<p>and implement the event handler:</p>
+<pre><code>  public void registerPressed (View view) 
+  {
+    startActivity (new Intent(this, Donate.class));
+  }
+</code></pre>
+
+<p>Finally (!) - we need to wire up the 'Signup' button from the welcome screen to take us to the signup activity.</p>
+<p>Open the welcome layout, and introduce the click handler:</p>
+<pre><code class="xml">    &lt;Button
+        android:id=&quot;@+id/welcomeSignup&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_centerHorizontal=&quot;true&quot;
+        android:layout_centerVertical=&quot;true&quot;
+        android:onClick=&quot;signupPressed&quot;
+        android:text=&quot;@string/welcomeSignup&quot; /&gt;
+</code></pre>
+
+<p>Then, in Welcome activity - implement the handler:</p>
+<pre><code class="java">  public void signupPressed (View view) 
+  {
+    startActivity (new Intent(this, Signup.class));
+  }
+</code></pre>
+
+<p>Run the app now, and verify that the navigation operates as expected. Also, try the 'back' button, and the menu button. Try various combination of these to see how it operates.</p>
+	  </section>
+	  <section data-tab="07" class="ui tab stacked moodle-book segment">
+	     <h1>Exercise 6:</h1>
+<p>Introduce a Login activty, which should just look for</p>
+<ul>
+<li>email</li>
+<li>
+<p>password</p>
+</li>
+<li>
+<p>a 'Login' button</p>
+</li>
+</ul>
+<p>Pressing Login should take you directly to "Donate" activity.</p>
+<h1>Solution</h1>
+<p>Create  new activity using the 'Wizard' - called "Login". Do not select "Login" form the wizard, keep the activity 'Blank'.</p>
+<p>Edit the layout, and design a screen to look like this:</p>
+<p><img alt="" src="img/07.png"></p>
+<p>This is the layout that may be generated:</p>
+<pre><code class="xml">&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;
+    android:paddingBottom=&quot;@dimen/activity_vertical_margin&quot;
+    android:paddingLeft=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingRight=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingTop=&quot;@dimen/activity_vertical_margin&quot;
+    tools:context=&quot;.Login&quot; &gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/loginTitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_alignParentTop=&quot;true&quot;
+        android:layout_marginTop=&quot;18dp&quot;
+        android:text=&quot;@string/loginTitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceMedium&quot; /&gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/loginSubtitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignLeft=&quot;@+id/loginTitle&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_below=&quot;@+id/loginTitle&quot;
+        android:text=&quot;@string/loginSubtitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceSmall&quot; /&gt;
+
+    &lt;EditText
+        android:id=&quot;@+id/loginEmail&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignLeft=&quot;@+id/loginSubtitle&quot;
+        android:layout_alignRight=&quot;@+id/loginSubtitle&quot;
+        android:layout_below=&quot;@+id/loginSubtitle&quot;
+        android:layout_marginTop=&quot;17dp&quot;
+        android:ems=&quot;10&quot;
+        android:hint=&quot;@string/loginEmail&quot;
+        android:inputType=&quot;textEmailAddress&quot; &gt;
+
+        &lt;requestFocus /&gt;
+    &lt;/EditText&gt;
+
+    &lt;EditText
+        android:id=&quot;@+id/loginPassword&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignLeft=&quot;@+id/loginEmail&quot;
+        android:layout_alignRight=&quot;@+id/loginEmail&quot;
+        android:layout_below=&quot;@+id/loginEmail&quot;
+        android:ems=&quot;10&quot;
+        android:hint=&quot;@string/loginPassword&quot;
+        android:inputType=&quot;textPassword&quot; /&gt;
+
+    &lt;Button
+        android:id=&quot;@+id/login&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_centerHorizontal=&quot;true&quot;
+        android:layout_centerVertical=&quot;true&quot;
+        android:text=&quot;@string/loginSignin&quot; /&gt;
+
+&lt;/RelativeLayout&gt;
+</code></pre>
+
+<p>and the supporting strings:</p>
+<pre><code>    &lt;string name=&quot;title_activity_login&quot;&gt;Login&lt;/string&gt;
+    &lt;string name=&quot;loginTitle&quot;&gt;Login to Donation&lt;/string&gt;
+    &lt;string name=&quot;loginSubtitle&quot;&gt;You must be reigstered&lt;/string&gt;
+    &lt;string name=&quot;loginSignin&quot;&gt;Sign in&lt;/string&gt;
+    &lt;string name=&quot;loginEmail&quot;&gt;Email&lt;/string&gt;
+    &lt;string name=&quot;loginPassword&quot;&gt;Password&lt;/string&gt;
+</code></pre>
+
+<p>There is how we would like the class to be implemented:</p>
+<pre><code class="java">package app.activities;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import app.donation.R;
+
+public class Login extends Activity
+{
+  @Override
+  protected void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_login);
+  }
+
+  public void signinPressed (View view) 
+  {
+    startActivity (new Intent(this, Donate.class));
+  }
+}
+</code></pre>
+
+<p>Locate the button resource in the activity_login.xml resource:</p>
+<pre><code class="xml">    &lt;Button
+        android:id=&quot;@+id/login&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_centerHorizontal=&quot;true&quot;
+        android:layout_centerVertical=&quot;true&quot;
+        android:onClick=&quot;signinPressed&quot;        
+        android:text=&quot;@string/loginSignin&quot; /&gt;
+</code></pre>
+
+<p>.. and introduce the onClick handler (shown above).</p>
+<p>Now, redirect the welcome screen to take the user to this screen when 'Login' is pressed. Open Welcome.java:</p>
+<pre><code>  public void loginPressed (View view) 
+  {
+    startActivity (new Intent(this, Login.class));
+  }
+</code></pre>
+
+<p>Now launch the app and verify that this route works as expected.</p>
+	  </section>
+	  <section data-tab="08" class="ui tab stacked moodle-book segment">
+	     <h1>Exercise 7</h1>
+<p>Bring in a new menu option - 'logout'. It should take you to the welcome screen, and should be available from the donate and report activities.</p>
+<h1>Solution</h1>
+<p>Introduce a new string resource for the menu item in strings.xml:</p>
+<pre><code class="xml">    &lt;string name=&quot;menuLogout&quot;&gt;Logout&lt;/string&gt;    
+</code></pre>
+
+<p>In both donate.xml and report.xml (the menus), bring in a new option:</p>
+<pre><code class="xml">      &lt;item
+        android:id=&quot;@+id/menuLogout&quot;
+        android:orderInCategory=&quot;100&quot;
+        android:showAsAction=&quot;never&quot;
+        android:title=&quot;@string/menuLogout&quot;/&gt;  
+</code></pre>
+
+<p>Run the app now, and verify that these options appear.</p>
+<p>Then we need to implement the control flow. In the donate activity class:</p>
+<pre><code class="java">  @Override
+  public boolean onOptionsItemSelected(MenuItem item)
+  {
+    switch (item.getItemId())
+    {
+      case R.id.menuReport : startActivity (new Intent(this, Report.class));
+                             break;
+      case R.id.menuLogout : startActivity (new Intent(this, Welcome.class));
+                             break;                             
+    }
+    return true;
+  }
+</code></pre>
+
+<p>and Report:</p>
+<pre><code class="java">  @Override
+  public boolean onOptionsItemSelected(MenuItem item)
+  {
+    switch (item.getItemId())
+    {
+      case R.id.menuDonate : startActivity (new Intent(this, Donate.class));
+                             break;
+      case R.id.menuLogout : startActivity (new Intent(this, Welcome.class));
+                             break;                               
+    }
+    return true;
+  }  
+</code></pre>
+
+<p>Test this now.</p>
+	  </section>
+	  <section data-tab="09" class="ui tab stacked moodle-book segment">
+	     <h1>Exercise 8</h1>
+<p>Introduce a 'User' into the models package to represent the user in the usual way. Maintain a list of Users in the DonationApp object. Whenever anyone registers, then create a new User object in this list.</p>
+<h1>Solution</h1>
+<p>Bring in this new class into models:</p>
+<pre><code class="java">public class User 
+{
+  public String firstName;
+  public String lastName;
+  public String email;
+  public String password;
+
+  public User(String firstName, String lastName, String email, String password)
+  {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+    this.password = password;
+  } 
+}
+</code></pre>
+
+<p>In DonationApp class, incorporate a new collection of Users as a member of the class:</p>
+<pre><code class="java">  public List &lt;User&gt;      users       = new ArrayList&lt;User&gt;();  
+</code></pre>
+
+<p>.. and a new method to add a user to this collection:</p>
+<pre><code class="java">  public void newUser(User user)
+  {
+    users.add(user);
+  }
+</code></pre>
+
+<p>Now in the Signup activity - we can retrieve the fields from the widgets, create a new User object and store it in the DonationApp object:</p>
+<pre><code class="java">  public void registerPressed (View view) 
+  {
+    TextView firstName = (TextView)  findViewById(R.id.firstName);
+    TextView lastName  = (TextView)  findViewById(R.id.lastName);
+    TextView email     = (TextView)  findViewById(R.id.Email);
+    TextView password  = (TextView)  findViewById(R.id.Password);
+
+    User user = new User (firstName.getText().toString(), lastName.getText().toString(), email.getText().toString(), password.getText().toString());
+
+    DonationApp app = (DonationApp) getApplication();
+    app.newUser(user);
+
+    startActivity (new Intent(this, Welcome.class));
+  }
+}
+</code></pre>
+
+<p>Test this now - There is one behavioural change from the last version - pressing 'Register' takes us back to the Welcome screen.</p>
+	  </section>
+	  <section data-tab="10" class="ui tab stacked moodle-book segment">
+	     <h1>Exercise 9</h1>
+<p>Implement the Login activity, to now only let users in to Donate if they are registered (i.e. a matching email + password in the list of users maintained by DonationApp)</p>
+<h1>Solution</h1>
+<p>Here is a new method for DonationApp that will validate users :</p>
+<pre><code class="java">  public boolean validUser (String email, String password)
+  {
+    for (User user : users)
+    {
+      if (user.email.equals(email) &amp;&amp; user.password.equals(password))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+</code></pre>
+
+<p>Then we can check in Login activity that the entered details match a user:</p>
+<pre><code class="java">  public void signinPressed (View view) 
+  {
+    DonationApp app = (DonationApp) getApplication();
+
+    TextView email     = (TextView)  findViewById(R.id.loginEmail);
+    TextView password  = (TextView)  findViewById(R.id.loginPassword);
+
+    if (app.validUser(email.getText().toString(), password.getText().toString()))
+    {
+      startActivity (new Intent(this, Donate.class));
+    }
+    else
+    {
+      Toast toast = Toast.makeText(this, &quot;Invalid Credentials&quot;, Toast.LENGTH_SHORT);
+      toast.show();
+    }
+  }
+</code></pre>
+
+<p>This completes the series of exercises based on donation lab v2.</p>
+	  </section>
+	  <section data-tab="Exercises" class="ui tab stacked moodle-book segment">
+	     <h1>Solution</h1>
+<ul>
+<li><a href="archives/donation-android-v3.zip">donation-android-v3.zip</a></li>
+</ul>
+<h1>Exercise 1: Github Repository for donation-android</h1>
+<p>Using the Repository lecture and lab as a guide:</p>
+<ul>
+<li><a href="https://moodle.wit.ie/course/view.php?id=12628&amp;section=5">Repositories</a></li>
+</ul>
+<p>Commit your donation project to a bitbucket repository.</p>
+<p>Here is a .gitignore for android:</p>
+<pre><code># built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+.settings/*
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+</code></pre>
+
+<h1>Exercise 2 Database Version of Donation</h1>
+<p>Re work the app to use a database instead of the in-memory data structures.</p>
+<p>To get you started, the following class is a 'helper' class, designed to manage donation and user objects in a database in Android:</p>
+<ul>
+<li><a href="archives/DbDonationHelper.java">DbDonationHelper.java</a></li>
+</ul>
+<p>This class relies on slightly modified Model classes, which implement getters and setters:</p>
+<ul>
+<li><a href="archives/User.java">User.java</a></li>
+<li><a href="archives/Donation.java">Donation.java</a></li>
+</ul>
+<p>You should just need to rewrite DonationApp class to used this helper instead of the current approach (in memory data structures).</p>
+<h1>Exercise 3: UML Model for donation-android</h1>
+<p>Using the Modeling lecture and lab as a guide:</p>
+<ul>
+<li><a href="https://moodle.wit.ie/course/view.php?id=12628&amp;section=3">Modelling</a></li>
+</ul>
+<p>Create a model of the current version of Donation-android. </p>
+<p>Here is an example:</p>
+<p><img alt="" src="img/08.png"></p>
+<p>This is just one way of representing the design. This variant here is also equally valid:</p>
+<p><img alt="" src="img/09.png"></p>
+<p>This is the model project here, developed in Visual Paradigm,  which you might use as a reference:</p>
+<ul>
+<li><a href="archives/donation-android.vpp">donation-android.vpp</a></li>
+</ul>
+	  </section>
+  <div class="ui fixed bottom borderless menu">'
+    <div class="ui small item"> 
+    <p id="footertext">
+    Prepared by  Eamonn de Leastar (edeleastar@wit.ie). Except where otherwise noted, this content is licensed under a  
+     <a  href="http://creativecommons.org/licenses/by-nc/4.0/" title="External link to http://creativecommons.org/licenses/by-nc/4.0/" 
+       target="_blank">Creative Commons Attribution-NonCommercial 4.0 License
+     </a>
+     </p>
+    </div>
+  </div>   
+    
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-49703418-7']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>  </body>
+ </html>

@@ -1,0 +1,919 @@
+ <!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+   
+     <title> Lab-06-B </title>
+   
+     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+     <link rel="stylesheet" href="./style/semantic/css/semantic.min.css" type="text/css">  
+     <link rel="stylesheet" href="./style/custom/main.css" type="text/css"> 
+   
+     <script src="./style/custom/jquery-2.1.0.min.js"></script> 
+     <script src="./style/custom/jquery.address-1.6.min.js"></script>
+     <script src="./style/semantic/javascript/semantic.min.js"></script>
+   
+     <link rel="stylesheet" href="./style/highlight/school_book.css">
+     <script src="./style/highlight/highlight.pack.js"></script> 
+     <script>hljs.initHighlightingOnLoad();</script>
+   
+     <script src="./style/custom/common.js"> </script> 
+     <script src="./style/custom/main.js"> </script> 
+  </head>
+  <body>
+  <nav class="ui fixed top pointing borderless inverted menu">
+    <header class="header item"> <a href="../index.html">API Test + Android App Basics</a></header>
+    <div class="right tab-menu menu">
+          <a class="item" data-tab="Lab-06-B"> Lab-06-B </a>
+          <a class="item" data-tab="01"> 01 </a>
+          <a class="item" data-tab="02"> 02 </a>
+          <a class="item" data-tab="03"> 03 </a>
+          <a class="item" data-tab="04"> 04 </a>
+          <a class="item" data-tab="05"> 05 </a>
+          <a class="item" data-tab="06"> 06 </a>
+          <a class="item" data-tab="07"> 07 </a>
+          <a class="item" data-tab="08"> 08 </a>
+          <a class="item" data-tab="Exercises"> Exercises </a>
+    </div>
+  </nav>
+
+  <br>
+
+	  <section data-tab="Lab-06-B" class="ui tab stacked moodle-book segment">
+	     <h1>Objectives</h1>
+<ul>
+<li>Layout a new Android project with a single activity</li>
+<li>Design this activity to permit donations to be made using simple controls</li>
+<li>Implement the Activity class to support these controls</li>
+</ul>
+	  </section>
+	  <section data-tab="01" class="ui tab stacked moodle-book segment">
+	     <h1>Create Project</h1>
+<p>Create a new Android application, with the following properties:</p>
+<p><img alt="" src="img/00.png"></p>
+<p>Note the 'Minimum Required SDK' which may be different from the default.</p>
+<p>Accept all the defaults in the wizard - except the name of the main activity:</p>
+<p><img alt="" src="img/01.png"></p>
+<p>The project will look like this:</p>
+<p><img alt="" src="img/02.png"></p>
+<p>With the activity_donate open in the visual designer:</p>
+<p><img alt="" src="img/03.png"></p>
+<p>It is important to become familiar with the structure and purpose of the three panes surrounding the Donation 'canvas':</p>
+<h2>Pallette:</h2>
+<p><img alt="" src="img/04.png"></p>
+<h2>Outline</h2>
+<p><img alt="" src="img/05.png"></p>
+<h2>Properties</h2>
+<p><img alt="" src="img/06.png"></p>
+<p>These views are closely related - and you will need to monitor the information displayed there continually as you evolve the appearance of your activities screens.</p>
+	  </section>
+	  <section data-tab="02" class="ui tab stacked moodle-book segment">
+	     <h1>Layout Donation Activity</h1>
+<p>For this lab, out objective is to reproduce in Android this feature from the web app:</p>
+<p><img alt="" src="img/07.png"></p>
+<p>In eclipse, delete the current 'Hello World' text, and drag and drop a new'LargeText' form widget onto the canvas. Look closely at the following:</p>
+<p><img alt="" src="img/08.png"></p>
+<p>Note carefully the following features:</p>
+<ul>
+<li>the guides tyeing the text to the left, top and right corner</li>
+<li>in Outline - the name of the control has been changed from a default to 'donateTitle'. This is changed by selecting the item in outline, and selecting 'Edit ID' from the context menu.</li>
+<li>in Properties - where we entered 'Welcome Homer' into the text field</li>
+</ul>
+<p>Recreate the above precisely.</p>
+<p>A 'Lint warning' will have popped up in the top right:</p>
+<p><img alt="" src="img/09.png"></p>
+<p>Click on this:</p>
+<p><img alt="" src="img/10.png"></p>
+<p>.. and select 'Fix' - this is inviting us to give a name to the string, which will be stored in a separate 'string.xml' file. Give it the name 'donateTitle':</p>
+<p><img alt="" src="img/11.png"></p>
+<p>Save everything - and the lint warning should (eventually) disappear.</p>
+<p>Locate the following two files and inspect them closely:</p>
+<h2>res/layout/activity_dontate.xml</h2>
+<pre><code class="xml">&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;
+    android:paddingBottom=&quot;@dimen/activity_vertical_margin&quot;
+    android:paddingLeft=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingRight=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingTop=&quot;@dimen/activity_vertical_margin&quot;
+    tools:context=&quot;.Donate&quot; &gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/donateTitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_alignParentTop=&quot;true&quot;
+        android:text=&quot;@string/donateTitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceLarge&quot; /&gt;
+
+&lt;/RelativeLayout&gt;
+</code></pre>
+
+<h2>res/values/strings.xml</h2>
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;resources&gt;
+
+    &lt;string name=&quot;app_name&quot;&gt;Donation&lt;/string&gt;
+    &lt;string name=&quot;action_settings&quot;&gt;Settings&lt;/string&gt;
+    &lt;string name=&quot;hello_world&quot;&gt;Hello world!&lt;/string&gt;
+    &lt;string name=&quot;donateTitle&quot;&gt;Welcome Homer&lt;/string&gt;
+
+&lt;/resources&gt;
+
+</code></pre>
+
+<p>Note the relationship between 'donateTitle' in both files. Also note we have a superfluous 'hello_world' string left over from the generated app. We can delete this now.</p>
+<p>Bring in the following string into the donate activity now - (medium text) - and follow the same procedure as above. The designer should look like this:</p>
+<p><img alt="" src="img/12.png"></p>
+<p>and our XML files will look like this:</p>
+<pre><code class="xml">&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;
+    android:paddingBottom=&quot;@dimen/activity_vertical_margin&quot;
+    android:paddingLeft=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingRight=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingTop=&quot;@dimen/activity_vertical_margin&quot;
+    tools:context=&quot;.Donate&quot; &gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/donateTitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_alignParentTop=&quot;true&quot;
+        android:text=&quot;@string/donateTitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceLarge&quot; /&gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/donateSubtitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_below=&quot;@+id/donateTitle&quot;
+        android:text=&quot;@string/donateSubtitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceMedium&quot; /&gt;
+
+&lt;/RelativeLayout&gt;
+</code></pre>
+
+<pre><code class="zml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;resources&gt;
+
+    &lt;string name=&quot;app_name&quot;&gt;Donation&lt;/string&gt;
+    &lt;string name=&quot;action_settings&quot;&gt;Settings&lt;/string&gt;
+    &lt;string name=&quot;donateTitle&quot;&gt;Welcome Homer&lt;/string&gt;
+    &lt;string name=&quot;donateSubtitle&quot;&gt;Please give generously&lt;/string&gt;
+
+&lt;/resources&gt;
+</code></pre>
+	  </section>
+	  <section data-tab="03" class="ui tab stacked moodle-book segment">
+	     <h1>Donate Button</h1>
+<p>Place a button directly on to the activity - attached to the bottom of the screen as shown:</p>
+<p><img alt="" src="img/13.png"></p>
+<p>Rename the button in the Outline view:</p>
+<p><img alt="" src="img/14.png"></p>
+<p>Fix the lint error - and give the button the text 'Donate!'. If all goes as expected, your xml files should be like this:</p>
+<h3>activity_donate.xml</h3>
+<pre><code class="xml">&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;
+    android:paddingBottom=&quot;@dimen/activity_vertical_margin&quot;
+    android:paddingLeft=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingRight=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingTop=&quot;@dimen/activity_vertical_margin&quot;
+    tools:context=&quot;.Donate&quot; &gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/donateTitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_alignParentTop=&quot;true&quot;
+        android:text=&quot;@string/donateTitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceLarge&quot; /&gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/donateSubtitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_below=&quot;@+id/donateTitle&quot;
+        android:text=&quot;@string/donateSubtitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceMedium&quot; /&gt;
+
+    &lt;Button
+        android:id=&quot;@+id/donateButton&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentBottom=&quot;true&quot;
+        android:layout_centerHorizontal=&quot;true&quot;
+        android:text=&quot;@string/donateButton&quot; /&gt;
+
+&lt;/RelativeLayout&gt;
+</code></pre>
+
+<h2>strings.xml</h2>
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;resources&gt;
+
+    &lt;string name=&quot;app_name&quot;&gt;Donation&lt;/string&gt;
+    &lt;string name=&quot;action_settings&quot;&gt;Settings&lt;/string&gt;
+    &lt;string name=&quot;donateTitle&quot;&gt;Welcome Homer&lt;/string&gt;
+    &lt;string name=&quot;donateSubtitle&quot;&gt;Please give generously&lt;/string&gt;
+    &lt;string name=&quot;donateButton&quot;&gt;Button&lt;/string&gt;
+
+&lt;/resources&gt;
+</code></pre>
+
+<p>If there is a deviation from the above - retrace your steps (delete the button) until you can match the above.</p>
+<p>We can now switch our attention to the Java Activity class Donate:</p>
+<pre><code class="java">package com.example.donation;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.view.Menu;
+
+public class Donate extends Activity
+{
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_donate);
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu)
+  {
+    // Inflate the menu; this adds items to the action bar if it is present.
+    getMenuInflater().inflate(R.menu.donate, menu);
+    return true;
+  }
+}
+</code></pre>
+
+<p>For any 'controls' a user can interact with we usually find it useful to associate a class member with that object. Currently we have one only on - a Button. The text fields we dont consider 'interactive' as such, so we will not include those.</p>
+<p>Insert the following new field into the class:</p>
+<pre><code class="java">  private Button donateButton;
+</code></pre>
+
+<p>The class will have to be imported. The class name will always match the name in the Pallette:</p>
+<p><img alt="" src="img/15.png"></p>
+<p>We are free to call the variable anything we like. However, in order to keep confusion to a minimum, always call the variable by the same name you used in the Outline view:</p>
+<p><img alt="" src="img/16.png"></p>
+<p>In onCreate - we need to initialise this variable:</p>
+<pre><code class="java">    donateButton = (Button) findViewById(R.id.donateButton);
+</code></pre>
+
+<p>We might also add a logging message so we can have some feedback as the app launches:</p>
+<pre><code>    Log.v(&quot;Donate&quot;, &quot;got the donate button&quot;);
+</code></pre>
+
+<p>This is the complete activity class:</p>
+<pre><code class="java">package com.example.donation;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.util.Log;
+import android.view.Menu;
+import android.widget.Button;
+
+public class Donate extends Activity
+{
+  private Button donateButton;
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_donate);
+
+    donateButton = (Button) findViewById(R.id.donateButton);
+    Log.v(&quot;Donate&quot;, &quot;got the donate button&quot;);
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu)
+  {
+    getMenuInflater().inflate(R.menu.donate, menu);
+    return true;
+  }
+}
+</code></pre>
+
+<p>Finding the log message can be very difficult, unless you set a filter. In the 'LogCat' view in eclipse, create a filter like this:</p>
+<p><img alt="" src="img/17.png"></p>
+<p>If you then select the filter, we should see our message:</p>
+<p><img alt="" src="img/18.png"></p>
+<p>We should check the donate button actually exists before logging our success:</p>
+<pre><code class="java">    if (donateButton != null)
+    {
+      Log.v(&quot;Donate&quot;, &quot;Really got the donate button&quot;);
+    }
+</code></pre>
+
+<p>Run the app again, and verify the above message appears.</p>
+	  </section>
+	  <section data-tab="04" class="ui tab stacked moodle-book segment">
+	     <h1>Documentation</h1>
+<p>The android documentation is particularly helpful and well designed. These are the two key starting points:</p>
+<ul>
+<li><a href="http://developer.android.com/guide/components/index.html">http://developer.android.com/guide/components/index.html</a></li>
+<li><a href="http://developer.android.com/reference/packages.html">http://developer.android.com/reference/packages.html</a></li>
+</ul>
+<p>The first is designed to be read though as a guide, perhaps independent of any work in eclipse. You should get into the habit of devoting an hour or two a week just reading this section.</p>
+<p>The Reference guide should always be open as you are working on labs or projects, and you should make a serious effort to get to grips with at least some of the information here.</p>
+<p>Taking the Button class we have just started using. We can immediately find the reference just by knowing the import statement in our Activity class:</p>
+<pre><code class="java">import android.widget.Button;
+</code></pre>
+
+<p>.. translates to</p>
+<ul>
+<li><a href="http://developer.android.com/reference/android/widget/Button.html">http://developer.android.com/reference/android/widget/Button.html</a></li>
+</ul>
+<p>(note the last three segments match the package name). Open this page now. Read just as far as the "Button Style" heading. There seems to be two ways of learning when an button event occurs. The first method is using the event handler/listener - but a second easier method is also available.</p>
+<p>Try this now. Bring in a new method into Donate class:</p>
+<pre><code class="java">  public void donateButtonPressed (View view) 
+  {
+    Log.v(&quot;Donate&quot;, &quot;Donate Pressed!&quot;);
+   }
+</code></pre>
+
+<p>Then, edit the activity_donate xml file - and add a new attribute into the Button xml fragment:</p>
+<pre><code class="xml">    &lt;Button
+        android:id=&quot;@+id/donateButton&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentBottom=&quot;true&quot;
+        android:layout_centerHorizontal=&quot;true&quot;
+        android:text=&quot;@string/donateButton&quot; 
+        android:onClick=&quot;donateButtonPressed&quot;/&gt;
+</code></pre>
+
+<p>(the very last entry)</p>
+<p>Save everything and execute the app, and monitor the log as you press the button:</p>
+<p><img alt="" src="img/19.png"></p>
+<p>We now have our first interaction working!</p>
+	  </section>
+	  <section data-tab="05" class="ui tab stacked moodle-book segment">
+	     <h1>Research + New Control Layout</h1>
+<p>Recall the UI we are trying to implement:</p>
+<p><img alt="" src="img/20.png"></p>
+<p>We need a Radio Buttons, some sort of selection/combo box + a progress bar. These can be found in various locations in the pallette:</p>
+<p><img alt="" src="img/21.png">
+<img alt="" src="img/22.png"></p>
+<p>RadioGroup, ProgressBar and NumberPicker seem likely candidates. The names of these controls are exactly as advertised, and we can expect them to be in the 'widgets' package. To verify this, try importing them at the top of the Donate activity class:</p>
+<pre><code class="java">import android.widget.RadioGroup;
+import android.widget.NumberPicker;
+import android.widget.ProgressBar;
+</code></pre>
+
+<p>... and we can bring in three fields into the class:</p>
+<pre><code class="java">  private RadioGroup   paymentMethod;
+  private ProgressBar  progressBar;
+  private NumberPicker amountPicker;
+</code></pre>
+
+<p>We can also open up three pages of documentation - which we can reverse engineer from the package/class names:</p>
+<ul>
+<li><a href="http://developer.android.com/reference/android/widget/RadioGroup.html">http://developer.android.com/reference/android/widget/RadioGroup.html</a></li>
+<li><a href="http://developer.android.com/reference/android/widget/ProgressBar.html">http://developer.android.com/reference/android/widget/ProgressBar.html</a></li>
+<li><a href="http://developer.android.com/reference/android/widget/NumberPicker.html">http://developer.android.com/reference/android/widget/NumberPicker.html</a></li>
+</ul>
+<p>Note this time we have gone to the Activity class before actually creating the controls. We should do this now - and remember to use the same names (for the IDs) as we create the controls.</p>
+<p><img alt="" src="img/23.png">
+<img alt="" src="img/24.png"></p>
+<p>Getting the layout +id names as shown above may take some practice. However, it is an essential skill to get on top of, even it it takes a lot of trial and error.</p>
+<p>For reference purposes (try to do it your self), these are the relevant generated xml files:</p>
+<pre><code class="xml">&lt;RelativeLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;
+    android:paddingBottom=&quot;@dimen/activity_vertical_margin&quot;
+    android:paddingLeft=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingRight=&quot;@dimen/activity_horizontal_margin&quot;
+    android:paddingTop=&quot;@dimen/activity_vertical_margin&quot;
+    tools:context=&quot;.Donate&quot; &gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/donateTitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_alignParentTop=&quot;true&quot;
+        android:text=&quot;@string/donateTitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceLarge&quot; /&gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/donateSubtitle&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentLeft=&quot;true&quot;
+        android:layout_alignParentRight=&quot;true&quot;
+        android:layout_below=&quot;@+id/donateTitle&quot;
+        android:text=&quot;@string/donateSubtitle&quot;
+        android:textAppearance=&quot;?android:attr/textAppearanceMedium&quot; /&gt;&lt;Button
+        android:id=&quot;@+id/donateButton&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_alignParentBottom=&quot;true&quot;
+        android:layout_centerHorizontal=&quot;true&quot;
+        android:onClick=&quot;donateButtonPressed&quot;
+        android:text=&quot;@string/donateButton&quot; /&gt;
+
+        &lt;RadioGroup
+            android:id=&quot;@+id/paymentMethod&quot;
+            android:layout_width=&quot;wrap_content&quot;
+            android:layout_height=&quot;wrap_content&quot;
+            android:layout_above=&quot;@+id/progressBar&quot;
+            android:layout_alignLeft=&quot;@+id/donateSubtitle&quot;
+            android:layout_below=&quot;@+id/donateSubtitle&quot;
+            android:layout_marginLeft=&quot;14dp&quot;
+            android:layout_marginTop=&quot;26dp&quot;
+            android:layout_toLeftOf=&quot;@+id/amountPicker&quot; &gt;
+
+            &lt;RadioButton
+                android:id=&quot;@+id/PayPal&quot;
+                android:layout_width=&quot;wrap_content&quot;
+                android:layout_height=&quot;wrap_content&quot;
+                android:checked=&quot;true&quot;
+                android:text=&quot;@string/PayPal&quot; /&gt;
+
+            &lt;RadioButton
+                android:id=&quot;@+id/Direct&quot;
+                android:layout_width=&quot;wrap_content&quot;
+                android:layout_height=&quot;wrap_content&quot;
+                android:text=&quot;@string/Direct&quot; /&gt;
+
+        &lt;/RadioGroup&gt;
+
+        &lt;ProgressBar
+            android:id=&quot;@+id/progressBar&quot;
+            style=&quot;?android:attr/progressBarStyleHorizontal&quot;
+            android:layout_width=&quot;wrap_content&quot;
+            android:layout_height=&quot;wrap_content&quot;
+            android:layout_above=&quot;@+id/donateButton&quot;
+            android:layout_alignParentLeft=&quot;true&quot;
+            android:layout_alignParentRight=&quot;true&quot;
+            android:layout_marginBottom=&quot;67dp&quot; /&gt;
+
+        &lt;NumberPicker
+            android:id=&quot;@+id/amountPicker&quot;
+            android:layout_width=&quot;wrap_content&quot;
+            android:layout_height=&quot;wrap_content&quot;
+            android:layout_alignRight=&quot;@+id/donateSubtitle&quot;
+            android:layout_alignTop=&quot;@+id/paymentMethod&quot; /&gt;
+
+&lt;/RelativeLayout&gt;
+</code></pre>
+
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;resources&gt;
+
+    &lt;string name=&quot;app_name&quot;&gt;Donation&lt;/string&gt;
+    &lt;string name=&quot;action_settings&quot;&gt;Settings&lt;/string&gt;
+    &lt;string name=&quot;donateTitle&quot;&gt;Welcome Homer&lt;/string&gt;
+    &lt;string name=&quot;donateSubtitle&quot;&gt;Please give generously&lt;/string&gt;
+    &lt;string name=&quot;donateButton&quot;&gt;Button&lt;/string&gt;
+    &lt;string name=&quot;PayPal&quot;&gt;PayPal&lt;/string&gt;
+    &lt;string name=&quot;Direct&quot;&gt;Direct&lt;/string&gt;
+
+&lt;/resources&gt;
+</code></pre>
+
+<p>If we have our naming conventions right - then we can bind to these new controls in onCreate:</p>
+<pre><code class="java">    paymentMethod = (RadioGroup)   findViewById(R.id.paymentMethod);
+    progressBar   = (ProgressBar)  findViewById(R.id.progressBar);
+    amountPicker  = (NumberPicker) findViewById(R.id.amountPicker);
+</code></pre>
+
+<p>This is the complete Donate class:</p>
+<pre><code class="java">package com.example.donation;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RadioGroup;
+import android.widget.NumberPicker;
+import android.widget.ProgressBar;
+
+
+public class Donate extends Activity
+{
+  private Button       donateButton;
+  private RadioGroup   paymentMethod;
+  private ProgressBar  progressBar;
+  private NumberPicker amountPicker;
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_donate);
+
+    donateButton  = (Button)       findViewById(R.id.donateButton);
+    paymentMethod = (RadioGroup)   findViewById(R.id.paymentMethod);
+    progressBar   = (ProgressBar)  findViewById(R.id.progressBar);
+    amountPicker  = (NumberPicker) findViewById(R.id.amountPicker);
+
+    amountPicker.setMinValue(0);
+    amountPicker.setMaxValue(1000);
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu)
+  {
+    getMenuInflater().inflate(R.menu.donate, menu);
+    return true;
+  }
+
+  public void donateButtonPressed (View view) 
+  {
+    Log.v(&quot;Donate&quot;, &quot;Donate Pressed!&quot;);
+   }
+}
+</code></pre>
+	  </section>
+	  <section data-tab="06" class="ui tab stacked moodle-book segment">
+	     <h1>NumberPicker</h1>
+<p>This is our reference documentation:</p>
+<ul>
+<li><a href="http://developer.android.com/reference/android/widget/NumberPicker.html">http://developer.android.com/reference/android/widget/NumberPicker.html</a></li>
+</ul>
+<p>which is a little overwhelming. Back in the guides:</p>
+<ul>
+<li><a href="http://developer.android.com/guide/components/index.html">http://developer.android.com/guide/components/index.html</a></li>
+</ul>
+<p>we might find some useful tutorial type introduction to this control - under 'User Interface' - 'Input Controls'</p>
+<ul>
+<li><a href="http://developer.android.com/guide/topics/ui/controls.html">http://developer.android.com/guide/topics/ui/controls.html</a></li>
+</ul>
+<p>.. and this is the page on 'pickers'</p>
+<ul>
+<li><a href="http://developer.android.com/guide/topics/ui/controls/pickers.html">http://developer.android.com/guide/topics/ui/controls/pickers.html</a></li>
+</ul>
+<p>This documentation is concerned with Fragments - a concept that may be difficult to grasp initially, and also explores the usage of date and time pickers. </p>
+<p>We can get up and running without this much fuss. Returning to the documentation, these three methods should be sufficient initially:</p>
+<ul>
+<li><a href="http://developer.android.com/reference/android/widget/NumberPicker.html#setMaxValue(int)">http://developer.android.com/reference/android/widget/NumberPicker.html#setMaxValue(int)</a></li>
+<li><a href="http://developer.android.com/reference/android/widget/NumberPicker.html#setMinValue(int)">http://developer.android.com/reference/android/widget/NumberPicker.html#setMinValue(int)</a></li>
+<li><a href="http://developer.android.com/reference/android/widget/NumberPicker.html#getValue()">http://developer.android.com/reference/android/widget/NumberPicker.html#getValue()</a></li>
+</ul>
+<p>In onCreate, initialise the values: </p>
+<pre><code class="java">    amountPicker.setMinValue(0);
+    amountPicker.setMaxValue(1000);
+</code></pre>
+
+<p>And in donateButtonPressed:</p>
+<pre><code class="java">  public void donateButtonPressed (View view) 
+  {
+    int amount = amountPicker.getValue();
+    Log.v(&quot;Donate&quot;, &quot;Donate Pressed! with amount &quot; + amount);
+   }
+</code></pre>
+
+<p>Run this now - and verify that it operates as expected (see the actual amounts in the log file).</p>
+	  </section>
+	  <section data-tab="07" class="ui tab stacked moodle-book segment">
+	     <h1>Radio Button</h1>
+<p>In donateButtonPressed we need to discover which payment method has been selected. Our RadioGroup documentation is here:</p>
+<ul>
+<li><a href="http://developer.android.com/reference/android/widget/RadioGroup.html">http://developer.android.com/reference/android/widget/RadioGroup.html</a></li>
+</ul>
+<p>This looks like the method we need:</p>
+<ul>
+<li><a href="http://developer.android.com/reference/android/widget/RadioGroup.html#getCheckedRadioButtonId()">getCheckedRadioButtonId()</a></li>
+</ul>
+<p>This is a revised version of donateButtonPressed()</p>
+<pre><code class="java">  public void donateButtonPressed (View view) 
+  {
+    int amount = amountPicker.getValue();
+    int radioId = paymentMethod.getCheckedRadioButtonId();
+    String method = &quot;&quot;;
+    if (radioId == R.id.PayPal)
+    {
+      method = &quot;PayPal&quot;;
+    }
+    else
+    {
+      method = &quot;Direct&quot;;
+    }
+    Log.v(&quot;Donate&quot;, &quot;Donate Pressed! with amount &quot; + amount + &quot;, method: &quot; + method);
+   }
+</code></pre>
+
+<p>Run it now and verify we are getting the correct logs.</p>
+<p>We can simplify it somewhat by reducing the if statement to a singlle line:</p>
+<pre><code class="java">    String method = radioId == R.id.PayPal ? &quot;PayPal&quot; : &quot;Direct&quot;;
+</code></pre>
+
+<p>This is the Java ternary operator:</p>
+<ul>
+<li><a href="http://marxsoftware.blogspot.ie/2010/09/how-i-learned-to-stop-worrying-and-love.html">http://marxsoftware.blogspot.ie/2010/09/how-i-learned-to-stop-worrying-and-love.html</a></li>
+</ul>
+<p>This is the complete activity class:</p>
+<pre><code class="java">package com.example.donation;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.content.res.Resources;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RadioGroup;
+import android.widget.NumberPicker;
+import android.widget.ProgressBar;
+
+
+public class Donate extends Activity
+{
+  private Button       donateButton;
+  private RadioGroup   paymentMethod;
+  private ProgressBar  progressBar;
+  private NumberPicker amountPicker;
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_donate);
+
+    donateButton  = (Button)       findViewById(R.id.donateButton);
+    paymentMethod = (RadioGroup)   findViewById(R.id.paymentMethod);
+    progressBar   = (ProgressBar)  findViewById(R.id.progressBar);
+    amountPicker  = (NumberPicker) findViewById(R.id.amountPicker);
+
+    amountPicker.setMinValue(0);
+    amountPicker.setMaxValue(1000);
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu)
+  {
+    getMenuInflater().inflate(R.menu.donate, menu);
+    return true;
+  }
+
+  public void donateButtonPressed (View view) 
+  {
+    int amount = amountPicker.getValue();
+    int radioId = paymentMethod.getCheckedRadioButtonId();
+    String method = radioId == R.id.PayPal ? &quot;PayPal&quot; : &quot;Direct&quot;;
+    Log.v(&quot;Donate&quot;, &quot;Donate Pressed! with amount &quot; + amount + &quot;, method: &quot; + method);
+   }
+}
+</code></pre>
+	  </section>
+	  <section data-tab="08" class="ui tab stacked moodle-book segment">
+	     <h1>Progress</h1>
+<p>The progress bar documentation:</p>
+<ul>
+<li><a href="http://developer.android.com/reference/android/widget/ProgressBar.html">http://developer.android.com/reference/android/widget/ProgressBar.html</a></li>
+</ul>
+<p>offers us advice on using the progress bar in multi-threaded application. Not quite what we are ready for yet! (but file it away for future reference).</p>
+<p>These two methods are probably what we need:</p>
+<ul>
+<li><a href="http://developer.android.com/reference/android/widget/ProgressBar.html#setMax(int)">http://developer.android.com/reference/android/widget/ProgressBar.html#setMax(int)</a></li>
+<li><a href="http://developer.android.com/reference/android/widget/ProgressBar.html#setProgress(int)">http://developer.android.com/reference/android/widget/ProgressBar.html#setProgress(int)</a></li>
+</ul>
+<p>First we would need to equip our activity with the ability to remember the donation amounts:</p>
+<pre><code class="java">  private int          totalDonated = 0;
+</code></pre>
+
+<p>Lets set max progress bar to 10000 in onCreate:</p>
+<pre><code class="java">    progressBar.setMax(10000);
+</code></pre>
+
+<p>.. and set the progress in donateButtonPressed:</p>
+<pre><code class="java">    totalDonated = totalDonated + amount;
+    progressBar.setProgress(totalDonated);
+</code></pre>
+
+<p>Try this now and observe the progres bar.</p>
+<p>This is the complete class:</p>
+<pre><code class="java">package com.example.donation;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RadioGroup;
+import android.widget.NumberPicker;
+import android.widget.ProgressBar;
+
+
+public class Donate extends Activity
+{
+  private int          totalDonated = 0;
+
+  private Button       donateButton;
+  private RadioGroup   paymentMethod;
+  private ProgressBar  progressBar;
+  private NumberPicker amountPicker;
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_donate);
+
+    donateButton  = (Button)       findViewById(R.id.donateButton);
+    paymentMethod = (RadioGroup)   findViewById(R.id.paymentMethod);
+    progressBar   = (ProgressBar)  findViewById(R.id.progressBar);
+    amountPicker  = (NumberPicker) findViewById(R.id.amountPicker);
+
+    amountPicker.setMinValue(0);
+    amountPicker.setMaxValue(1000);
+    progressBar.setMax(10000);
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu)
+  {
+    getMenuInflater().inflate(R.menu.donate, menu);
+    return true;
+  }
+
+  public void donateButtonPressed (View view) 
+  {
+    int amount = amountPicker.getValue();
+    int radioId = paymentMethod.getCheckedRadioButtonId();
+    String method = radioId == R.id.PayPal ? &quot;PayPal&quot; : &quot;Direct&quot;;
+    totalDonated = totalDonated + amount;
+    progressBar.setProgress(totalDonated);
+    Log.v(&quot;Donate&quot;, &quot;Donate Pressed! with amount &quot; + amount + &quot;, method: &quot; + method);
+    Log.v(&quot;Donate&quot;, &quot;Current total &quot; + totalDonated);
+   }
+}
+</code></pre>
+
+<p>Here is another version of exactly the same class:</p>
+<pre><code class="java">package com.example.donation;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.RadioGroup;
+import android.widget.NumberPicker;
+import android.widget.ProgressBar;
+
+public class Donate extends Activity
+{
+  private int          totalDonated = 0;
+
+  private RadioGroup   paymentMethod;
+  private ProgressBar  progressBar;
+  private NumberPicker amountPicker;
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_donate);
+
+    paymentMethod = (RadioGroup)   findViewById(R.id.paymentMethod);
+    progressBar   = (ProgressBar)  findViewById(R.id.progressBar);
+    amountPicker  = (NumberPicker) findViewById(R.id.amountPicker);
+
+    amountPicker.setMinValue(0);
+    amountPicker.setMaxValue(1000);
+    progressBar.setMax(10000);
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu)
+  {
+    getMenuInflater().inflate(R.menu.donate, menu);
+    return true;
+  }
+
+  public void donateButtonPressed (View view) 
+  {
+    totalDonated  = totalDonated + amountPicker.getValue();
+    String method = paymentMethod.getCheckedRadioButtonId() == R.id.PayPal ? &quot;PayPal&quot; : &quot;Direct&quot;;
+    progressBar.setProgress(totalDonated);
+
+    Log.v(&quot;Donate&quot;, amountPicker.getValue() + &quot; donated by &quot; +  method + &quot;\nCurrent total &quot; + totalDonated);
+   }
+}
+</code></pre>
+
+<p>Examine them carefully. What are the differences? Why make these changes?</p>
+<p>Not also the careful attention to spacing and alignment in the code. Not just correct indentation, but continual attention to structuring each method carefully, removing duplication and unnecessary code and formatting/aligning the declarations and assignment statements in a table like structure:</p>
+<p>Visible here:</p>
+<pre><code>  private int          totalDonated = 0;
+
+  private RadioGroup   paymentMethod;
+  private ProgressBar  progressBar;
+  private NumberPicker amountPicker;
+</code></pre>
+
+<p>and here:</p>
+<pre><code>    paymentMethod = (RadioGroup)   findViewById(R.id.paymentMethod);
+    progressBar   = (ProgressBar)  findViewById(R.id.progressBar);
+    amountPicker  = (NumberPicker) findViewById(R.id.amountPicker);
+</code></pre>
+
+<p>and here:</p>
+<pre><code>    totalDonated  = totalDonated + amountPicker.getValue();
+    String method = paymentMethod.getCheckedRadioButtonId() == R.id.PayPal ? &quot;PayPal&quot; : &quot;Direct&quot;;
+</code></pre>
+
+<p>Android code can become very verbose and complex. Carefully formatting is essential if you are not to be overwhelmed.</p>
+	  </section>
+	  <section data-tab="Exercises" class="ui tab stacked moodle-book segment">
+	     <h1>Exercises</h1>
+<p>Archive of lab so far:</p>
+<ul>
+<li><a href="archives/donation-android-v1.zip">donation-android-v1.zip</a></li>
+</ul>
+<h2>Exercises 1:</h2>
+<p>Consider an alternative to the NumberPicker - specifically one of the "Text Fields" controls:</p>
+<p><img alt="" src="img/25.png"></p>
+<p>These are mostly EditView objects:</p>
+<ul>
+<li><a href="http://developer.android.com/reference/android/widget/EditText.html">http://developer.android.com/reference/android/widget/EditText.html</a></li>
+</ul>
+<p>Redesign the activity to take a value from the picker or directly from a text view:</p>
+<p><img alt="" src="img/26.png"></p>
+<p>If the number picker is set to zero, then attempt to get a number from the text view.</p>
+<p>Here is a hint (a version of donatButonPressed that does what we want):</p>
+<pre><code class="java">  public void donateButtonPressed (View view) 
+  {
+    String method = paymentMethod.getCheckedRadioButtonId() == R.id.PayPal ? &quot;PayPal&quot; : &quot;Direct&quot;;
+    progressBar.setProgress(totalDonated);
+
+    int donatedAmount =  amountPicker.getValue();
+    if (donatedAmount == 0)
+    {
+      String text = amountText.getText().toString();
+      if (!text.equals(&quot;&quot;))
+        donatedAmount = Integer.parseInt(text);
+    }
+    totalDonated  = totalDonated + donatedAmount;
+    Log.v(&quot;Donate&quot;, amountPicker.getValue() + &quot; donated by &quot; +  method + &quot;\nCurrent total &quot; + totalDonated);
+   }
+</code></pre>
+
+<h2>Exercise 2:</h2>
+<p>Revise the app such that when the target is achieved (10000) - then no more donations accepted, and the user is made aware of this.</p>
+<p>Hint - here is how you can display a simple alert:</p>
+<pre><code class="java">      Toast toast = Toast.makeText(this, &quot;Target Exceeded!&quot;, Toast.LENGTH_SHORT);
+      toast.show();
+</code></pre>
+
+<h2>Exercise 3:</h2>
+<p>Show on screen at all times the total amount donated.</p>
+<p>You will use standard TextView for this:</p>
+<ul>
+<li><a href="http://developer.android.com/reference/android/widget/TextView.html">http://developer.android.com/reference/android/widget/TextView.html</a></li>
+</ul>
+<p>You already have a number of these on screen. Your layout could be revised to look like this:</p>
+<p><img alt="" src="img/27.png"></p>
+	  </section>
+  <div class="ui fixed bottom borderless menu">'
+    <div class="ui small item"> 
+    <p id="footertext">
+    Prepared by  Eamonn de Leastar (edeleastar@wit.ie). Except where otherwise noted, this content is licensed under a  
+     <a  href="http://creativecommons.org/licenses/by-nc/4.0/" title="External link to http://creativecommons.org/licenses/by-nc/4.0/" 
+       target="_blank">Creative Commons Attribution-NonCommercial 4.0 License
+     </a>
+     </p>
+    </div>
+  </div>   
+    
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-49703418-7']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>  </body>
+ </html>

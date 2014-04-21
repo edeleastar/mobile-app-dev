@@ -1,0 +1,986 @@
+ <!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+   
+     <title> Lab-09 </title>
+   
+     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+     <link rel="stylesheet" href="./style/semantic/css/semantic.min.css" type="text/css">  
+     <link rel="stylesheet" href="./style/custom/main.css" type="text/css"> 
+   
+     <script src="./style/custom/jquery-2.1.0.min.js"></script> 
+     <script src="./style/custom/jquery.address-1.6.min.js"></script>
+     <script src="./style/semantic/javascript/semantic.min.js"></script>
+   
+     <link rel="stylesheet" href="./style/highlight/school_book.css">
+     <script src="./style/highlight/highlight.pack.js"></script> 
+     <script>hljs.initHighlightingOnLoad();</script>
+   
+     <script src="./style/custom/common.js"> </script> 
+     <script src="./style/custom/main.js"> </script> 
+  </head>
+  <body>
+  <nav class="ui fixed top pointing borderless inverted menu">
+    <header class="header item"> <a href="../index.html">Android Threads & HTTP Requests</a></header>
+    <div class="right tab-menu menu">
+          <a class="item" data-tab="Lab-09"> Lab-09 </a>
+          <a class="item" data-tab="01"> 01 </a>
+          <a class="item" data-tab="02"> 02 </a>
+          <a class="item" data-tab="03"> 03 </a>
+          <a class="item" data-tab="04"> 04 </a>
+          <a class="item" data-tab="05"> 05 </a>
+          <a class="item" data-tab="06"> 06 </a>
+          <a class="item" data-tab="07"> 07 </a>
+          <a class="item" data-tab="08"> 08 </a>
+          <a class="item" data-tab="Exercises"> Exercises </a>
+    </div>
+  </nav>
+
+  <br>
+
+	  <section data-tab="Lab-09" class="ui tab stacked moodle-book segment">
+	     <h1>Objectives</h1>
+<ul>
+<li>Create a version of the the donation app as a play project</li>
+<li>Expose an 'API' from this app to enable other programmes to use it</li>
+<li>Rework the Donation android app to use this api</li>
+</ul>
+	  </section>
+	  <section data-tab="01" class="ui tab stacked moodle-book segment">
+	     <h1>Play Donation App</h1>
+<p>Using Play, create  new app in the usual way:</p>
+<pre><code>play new donation-service
+</code></pre>
+
+<p>Generate an eclipse view of the project"</p>
+<pre><code>play eclipsify
+</code></pre>
+
+<p>... and import the project into your Eclipse workspace.</p>
+<p>Create a new package called 'models' - and bring in these classes:</p>
+<pre><code class="java">package models;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import java.util.List;
+
+import play.db.jpa.Model;
+
+@Entity
+public class Donation extends Model
+{
+  public int    amount;
+  public String method;
+
+  public Donation (int amount, String method)
+  {
+    this.amount = amount;
+    this.method = method;
+  }
+
+  public String toString()
+  {
+    return amount + &quot;, &quot; + method;
+  }
+}
+</code></pre>
+
+<pre><code class="java">package models;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import java.util.List;
+
+import play.db.jpa.Model;
+
+@Entity
+public class User extends Model
+{
+  public String firstName;
+  public String lastName;
+  public String email;
+  public String password;
+
+  public User(String firstName, String lastName, String email, String password)
+  {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+    this.password = password;
+  } 
+}
+</code></pre>
+	  </section>
+	  <section data-tab="02" class="ui tab stacked moodle-book segment">
+	     <h1>Utils</h1>
+<p>Create a new package called 'utils', and bring in these classes:</p>
+<pre><code class="java">package utils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+
+import play.data.binding.Global;
+import play.data.binding.TypeBinder;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
+@Global
+public class GsonBinder implements TypeBinder&lt;JsonElement&gt;
+{
+  public Object bind(String name, Annotation[] notes, String value, Class toClass, Type toType) throws Exception
+  {
+    return new JsonParser().parse(value);
+  }
+}
+</code></pre>
+
+<pre><code class="java">package utils;
+
+import java.lang.reflect.Type;
+import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import models.Donation;
+import models.User;
+
+public class JsonParsers
+{
+  static Gson gson = new Gson();
+
+  public static User json2User(String json)
+  {
+    return gson.fromJson(json, User.class);   
+  }
+
+  public static List&lt;User&gt; json2Users(String json)
+  {
+    Type collectionType = new TypeToken&lt;List&lt;User&gt;&gt;() {}.getType();
+    return gson.fromJson(json, collectionType); 
+  }
+
+  public static String user2Json(Object obj)
+  {
+    return gson.toJson(obj);
+  }  
+
+  public static Donation json2Donation(String json)
+  {
+    return gson.fromJson(json, Donation.class);    
+  }
+
+  public static String donation2Json(Object obj)
+  {
+    return gson.toJson(obj);
+  }  
+
+  public static List&lt;Donation&gt; json2Donations(String json)
+  {
+    Type collectionType = new TypeToken&lt;List&lt;Donation&gt;&gt;() {}.getType();
+    return gson.fromJson(json, collectionType);    
+  }  
+}
+</code></pre>
+	  </section>
+	  <section data-tab="03" class="ui tab stacked moodle-book segment">
+	     <h1>API</h1>
+<p>Into the controllers package, create a new controller called 'DonationServiceAPI':</p>
+<pre><code class="java">package controllers;
+
+import play.*;
+import play.mvc.*;
+import utils.JsonParsers;
+
+import java.util.*;
+
+import com.google.gson.JsonElement;
+
+import models.*;
+
+public class DonationServiceAPI extends Controller
+{
+  public static void users()
+  {
+    List&lt;User&gt; users = User.findAll();
+    renderJSON(JsonParsers.user2Json(users));
+  }
+
+  public static void user(Long id)
+  {
+    User user = User.findById(id);  
+    if (user == null)
+    {
+      notFound();
+    }
+    else
+    {
+      renderJSON(JsonParsers.user2Json(user));
+    }
+  }
+
+  public static void createUser(JsonElement body)
+  {
+    User user = JsonParsers.json2User(body.toString());
+    user.save();
+    renderJSON(JsonParsers.user2Json(user));
+  }
+
+  public static void deleteUser(Long id)
+  {
+    User user = User.findById(id);
+    if (user == null)
+    {
+      notFound();
+    }
+    else
+    {
+      user.delete();
+      renderText(&quot;success&quot;);
+    }
+  }
+
+  public static void deleteAllUsers()
+  {
+    User.deleteAll();
+    renderText(&quot;success&quot;);
+  }    
+
+  public static void donations()
+  {
+    List&lt;Donation&gt; donations = Donation.findAll();
+    renderText(JsonParsers.donation2Json(donations));
+  }
+
+  public static void donation (Long id)
+  {
+   Donation donation = Donation.findById(id);
+   renderJSON (JsonParsers.donation2Json(donation));
+  }
+
+  public static void createDonation(JsonElement body)
+  {
+    Donation donation = JsonParsers.json2Donation(body.toString());
+    Donation newDonation = new Donation (donation.amount, donation.method);
+    newDonation.save();
+    renderJSON (JsonParsers.donation2Json(newDonation));
+  }  
+
+
+  public static void deleteDonation(Long id)
+  {
+    Donation donation = Donation.findById(id);
+    if (donation == null)
+    {
+      notFound();
+    }
+    else
+    {
+      donation.delete();
+      ok();
+    }
+  }  
+}
+</code></pre>
+	  </section>
+	  <section data-tab="04" class="ui tab stacked moodle-book segment">
+	     <h1>Config</h1>
+<p>Enable our in-memory database by uncommenting the usual setting in 'application.conf'</p>
+<pre><code>db=mem
+</code></pre>
+
+<p>Introduce the 'Bootstrap' java class directly into the 'app' folder:</p>
+<pre><code>import java.util.List;
+
+import play.jobs.*;
+import play.test.*;
+import models.*;
+
+@OnApplicationStart
+public class Bootstrap extends Job 
+{ 
+  public void doJob()
+  {
+    if (User.count() == 0)
+    {
+     Fixtures.deleteDatabase(); 
+     Fixtures.loadModels(&quot;data.yml&quot;);
+    }
+  }
+}
+</code></pre>
+
+<p>.. and now specify our routes in config/routes:</p>
+<pre><code>GET     /api/users                           DonationServiceAPI.users
+GET     /api/users/{id}                      DonationServiceAPI.user
+POST    /api/users                           DonationServiceAPI.createUser
+DELETE  /api/users/{id}                      DonationServiceAPI.deleteUser
+
+GET     /api/donations                       DonationServiceAPI.donations
+GET     /api/donations/{id}                  DonationServiceAPI.donation
+POST    /api/donations                       DonationServiceAPI.createDonation
+DELETE  /api/donations/{id}                  DonationServiceAPI.deleteDonation
+</code></pre>
+
+<p>Finally, provide some initial database entries in conf/data.yaml:</p>
+<pre><code>User(homer):
+    usaCitizen: true
+    firstName: Homer
+    lastName: Simpson
+    email: homer@simpson.com
+    password: secret
+
+User(marge):
+    usaCitizen: true
+    firstName: Marge
+    lastName: Simpson
+    email: marge@simpson.com
+    password: secret
+
+User(lisa):
+    usaCitizen: true
+    firstName: Lisa
+    lastName: Simpson
+    email: lisa@simpson.com
+    password: secret
+
+User(bart):
+    usaCitizen: true
+    firstName: Bart
+    lastName: Simpson
+    email: bart@simpson.com
+    password: secret
+
+User(maggie):
+    usaCitizen: true
+    firstName: Maggie
+    lastName: Simpson
+    email: maggie@simpson.com
+    password: secret
+
+Donation(a):
+    amount : 210
+    method : paypal
+
+Donation(b):
+    amount : 20
+    method : cash
+
+Donation(c):
+    amount : 330
+    method : cash
+
+Donation(d):
+    amount : 10
+    method : paypal 
+</code></pre>
+
+<p>The project should build without error. Launch it and browse to the database in the usual way.</p>
+<p>Also, in a browser, explore these urls:</p>
+<ul>
+<li><a href="http://localhost:9000/">http://localhost:9000/</a></li>
+<li><a href="http://localhost:9000/api/users">http://localhost:9000/api/users</a></li>
+<li><a href="http://localhost:9000/api/users/1">http://localhost:9000/api/users/1</a></li>
+<li><a href="http://localhost:9000/api/users/2">http://localhost:9000/api/users/2</a></li>
+<li><a href="http://localhost:9000/api/donations">http://localhost:9000/api/donations</a></li>
+<li><a href="http://localhost:9000/api/donations/1">http://localhost:9000/api/donations/1</a></li>
+<li><a href="http://localhost:9000/api/donations/2">http://localhost:9000/api/donations/2</a></li>
+</ul>
+	  </section>
+	  <section data-tab="05" class="ui tab stacked moodle-book segment">
+	     <h1>Back in donation-android App</h1>
+<p>There is a folder in your eclipse project called 'libs'.  Download and copy this jar into libs:</p>
+<ul>
+<li>
+<p><a href="archives/gson-2.2.2.jar">gson-2.2.2.jar</a></p>
+</li>
+<li>
+<p>add to build path (right click and add to build path in Eclipse)</p>
+</li>
+</ul>
+<p>In Eclipse, create new package <code>app.http</code>, and bring in these classes:</p>
+<h2>Response</h2>
+<pre><code class="java">package app.http;
+
+import java.util.List;
+
+public interface Response&lt;T&gt;
+{
+  public void setReponse(List&lt;T&gt; aList);
+  public void setReponse(T anObject);
+  public void errorOccurred (Exception e);
+}
+</code></pre>
+
+<h2>Request</h2>
+<pre><code class="java">package app.http;
+
+import java.util.List;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.AsyncTask;
+
+@SuppressWarnings(&quot;rawtypes&quot;)
+public abstract class Request extends AsyncTask&lt;Object, Void, Object&gt;
+{
+  public Response         responder;
+  public ProgressDialog   dialog;
+  public Context          context;
+  public String           message;
+  public Exception        error;
+
+  public Request(Context context, Response responder, String message)
+  {
+    this.responder = responder;
+    this.context = context;
+    this.message = message;
+  }
+
+  @Override
+  protected void onPreExecute()
+  {
+    super.onPreExecute();
+    this.dialog = new ProgressDialog(context, 1);
+    this.dialog.setMessage(message);
+    this.dialog.show();
+  }
+
+  @Override
+  protected  Object doInBackground(Object... params)
+  {
+    error = null;
+    try
+    {
+      return doRequest(params);
+    }
+    catch (Exception e)
+    {
+      error = e;
+    }
+    return null;
+  }
+
+  protected abstract  Object doRequest(Object... params) throws Exception;
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  protected void onPostExecute(Object result)
+  {
+    super.onPostExecute(result);
+    if (dialog.isShowing())
+    {
+      dialog.dismiss();
+    }
+    if (error != null)
+    {
+      responder.errorOccurred(error);  
+    }
+    else
+    {
+      if (result instanceof List)
+      {
+        responder.setReponse((List)result);
+      }
+      else
+      {
+        responder.setReponse(result);
+      }
+    }
+  } 
+}
+</code></pre>
+
+<h2>Rest</h2>
+<pre><code class="java">package app.http;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
+public class Rest
+{
+  private static DefaultHttpClient httpClient = null;
+  private static final String URL = &quot;http://10.0.2.2:9000&quot;;
+
+  private static DefaultHttpClient httpClient()
+  {
+    if (httpClient == null)
+    {
+      HttpParams httpParameters = new BasicHttpParams();
+      HttpConnectionParams.setConnectionTimeout(httpParameters, 10000);
+      HttpConnectionParams.setSoTimeout(httpParameters, 10000);
+      httpClient = new DefaultHttpClient(httpParameters);
+    }
+    return httpClient;
+  }
+
+  public static String get(String path) throws Exception
+  {
+    HttpGet getRequest = new HttpGet(URL + path);
+    getRequest.setHeader(&quot;accept&quot;, &quot;application/json&quot;);
+    HttpResponse response = httpClient().execute(getRequest);
+    return new BasicResponseHandler().handleResponse(response);
+  }
+
+  public static String delete(String path) throws Exception
+  {
+    HttpDelete deleteRequest = new HttpDelete(URL + path);
+    HttpResponse response = httpClient().execute(deleteRequest);
+    return new BasicResponseHandler().handleResponse(response);
+  }
+
+  public static String put(String path, String json) throws Exception
+  {
+    HttpPut putRequest = new HttpPut(URL + path);
+    putRequest.setHeader(&quot;Content-type&quot;, &quot;application/json&quot;);
+    putRequest.setHeader(&quot;accept&quot;, &quot;application/json&quot;);
+
+    StringEntity s = new StringEntity(json);
+    s.setContentEncoding(&quot;UTF-8&quot;);
+    s.setContentType(&quot;application/json&quot;);
+    putRequest.setEntity(s);
+
+    HttpResponse response = httpClient().execute(putRequest);
+    return new BasicResponseHandler().handleResponse(response);
+  }
+
+  public static String post(String path, String json) throws Exception
+  {
+    HttpPost putRequest = new HttpPost(URL + path);
+    putRequest.setHeader(&quot;Content-type&quot;, &quot;application/json&quot;);
+    putRequest.setHeader(&quot;accept&quot;, &quot;application/json&quot;);
+
+    StringEntity s = new StringEntity(json);
+    s.setContentEncoding(&quot;UTF-8&quot;);
+    s.setContentType(&quot;application/json&quot;);
+    putRequest.setEntity(s);
+
+    HttpResponse response = httpClient().execute(putRequest);
+    return new BasicResponseHandler().handleResponse(response);
+  }
+}
+</code></pre>
+	  </section>
+	  <section data-tab="06" class="ui tab stacked moodle-book segment">
+	     <h1>Models</h1>
+<p>We already have a models package - introduce these new classes into this package:</p>
+<h2>JsonParsers</h2>
+<pre><code class="java">package app.models;
+
+import java.lang.reflect.Type;
+import java.util.List;
+
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+public class JsonParsers
+{
+  static Gson gson = new Gson();
+
+  public static User json2User(String json)
+  {
+    return gson.fromJson(json, User.class);   
+  }
+
+  public static List&lt;User&gt; json2Users(String json)
+  {
+    Type collectionType = new TypeToken&lt;List&lt;User&gt;&gt;() {}.getType();
+    return gson.fromJson(json, collectionType); 
+  }
+
+  public static String user2Json(Object obj)
+  {
+    return gson.toJson(obj);
+  }  
+
+  public static Donation json2Donation(String json)
+  {
+    return gson.fromJson(json, Donation.class);    
+  }
+
+  public static String donation2Json(Object obj)
+  {
+    return gson.toJson(obj);
+  }  
+
+  public static List&lt;Donation&gt; json2Donations(String json)
+  {
+    Type collectionType = new TypeToken&lt;List&lt;Donation&gt;&gt;() {}.getType();
+    return gson.fromJson(json, collectionType);    
+  }  
+}
+</code></pre>
+
+<h2>DonationServiceAPI</h2>
+<pre><code class="java">package app.models;
+
+import java.util.List;
+import android.content.Context;
+import app.http.Request;
+import app.http.Response;
+import app.http.Rest;
+
+public class DonationServiceAPI
+{ 
+  public static void getUsers(Context context, Response&lt;User&gt; response, String dialogMesssage)
+  {
+    new GetUsers(context, response, dialogMesssage).execute();
+  }
+
+  public static void createUser(Context context, Response&lt;User&gt; response, String dialogMesssage, User user)
+  {
+    new CreateUser(context, response, dialogMesssage).execute(user);
+  }
+
+  public static void getDonations(Context context, Response&lt;Donation&gt; response, String dialogMesssage)
+  {
+    new GetDonations(context, response, dialogMesssage).execute();
+  }
+
+  public static void createDonation(Context context, Response&lt;Donation&gt; response, String dialogMesssage, Donation donation)
+  {
+    new CreateDonation(context, response, dialogMesssage).execute(donation);
+  }
+}
+
+class GetUsers extends Request
+{
+  public GetUsers(Context context, Response&lt;User&gt; callback, String message)
+  {
+    super(context, callback, message);
+  }
+
+  @Override
+  protected List&lt;User&gt; doRequest(Object... params) throws Exception
+  {
+    String response =  Rest.get(&quot;/api/users&quot;);
+    List&lt;User&gt; userList = JsonParsers.json2Users(response);
+    return userList;
+  }
+}
+
+class GetDonations extends Request
+{
+  public GetDonations(Context context, Response&lt;Donation&gt; callback, String message)
+  {
+    super(context, callback, message);
+  }
+
+  @Override
+  protected List&lt;Donation&gt; doRequest(Object... params) throws Exception
+  {
+    String response =  Rest.get(&quot;/api/donations&quot;);
+    List&lt;Donation&gt; donationList = JsonParsers.json2Donations(response);
+    return donationList;
+  }
+}
+
+class CreateUser extends Request
+{ 
+  public CreateUser(Context context, Response&lt;User&gt; callback, String message)
+  {
+    super(context, callback, message);
+  }
+
+  @Override
+  protected User doRequest(Object... params) throws Exception
+  {
+    String response = Rest.post (&quot;/api/users&quot;, JsonParsers.user2Json(params[0]));
+    return JsonParsers.json2User(response);
+  }
+}
+
+class CreateDonation extends Request
+{
+  public CreateDonation(Context context, Response&lt;Donation&gt; callback, String message)
+  {
+    super(context, callback, message);
+  }
+
+  @Override
+  protected Donation doRequest(Object... params) throws Exception
+  {
+    String response = Rest.post (&quot;/api/donations&quot;, JsonParsers.donation2Json(params[0]));
+    return JsonParsers.json2Donation(response);
+  }
+}
+</code></pre>
+	  </section>
+	  <section data-tab="07" class="ui tab stacked moodle-book segment">
+	     <h1>Login Activity</h1>
+<p>This is a restructuring of Login to fetch the users from the donation-service as soon as the activity starts, and then to handle the response appropriately.</p>
+<pre><code class="java">package app.activities;
+
+import java.util.List;
+import android.os.Bundle;
+import android.app.Activity;
+import android.content.Intent;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+import app.donation.R;
+import app.http.Response;
+import app.main.DonationApp;
+import app.models.DonationServiceAPI;
+import app.models.User;
+
+public class Login extends Activity implements Response&lt;User&gt;
+{
+  @Override
+  protected void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_login);
+
+    DonationServiceAPI.getUsers(this, this, &quot;Retrieving list of users&quot;);
+  }
+
+  public void signinPressed (View view) 
+  {
+    DonationApp app = (DonationApp) getApplication();
+
+    TextView email     = (TextView)  findViewById(R.id.loginEmail);
+    TextView password  = (TextView)  findViewById(R.id.loginPassword);
+
+    if (app.validUser(email.getText().toString(), password.getText().toString()))
+    {
+      startActivity (new Intent(this, Donate.class));
+    }
+    else
+    {
+      Toast toast = Toast.makeText(this, &quot;Invalid Credentials&quot;, Toast.LENGTH_SHORT);
+      toast.show();
+    }
+  }
+
+  @Override
+  public void setReponse(List&lt;User&gt; aList)
+  {
+    DonationApp app = (DonationApp) getApplication();
+    app.users = aList;
+  }
+
+  @Override
+  public void errorOccurred(Exception e)
+  {
+    Toast toast = Toast.makeText(this, &quot;Donation Service Unavailable. Try again later&quot;, Toast.LENGTH_LONG);
+    toast.show();
+    startActivity (new Intent(this, Welcome.class));
+  }
+
+  @Override
+  public void setReponse(User anObject)
+  {}
+}
+</code></pre>
+
+<h1>Running the application</h1>
+<p>The last step to getting the project running is to specifically enable Internet access for your app. This is controlled by a single entry in the AndroidManifest.xml file:</p>
+<pre><code>    &lt;uses-permission android:name=&quot;android.permission.INTERNET&quot;/&gt;
+</code></pre>
+
+<p>Try the app now (make sure donation-service play app is running). It should let you log in with user credentials download from the service (try homer@simpson.com, secret - without registering).</p>
+	  </section>
+	  <section data-tab="08" class="ui tab stacked moodle-book segment">
+	     <h1>Report</h1>
+<p>Finally, the report activity:</p>
+<pre><code class="java">package app.activities;
+
+import java.util.List;
+import app.donation.R;
+import app.http.Response;
+import app.main.DonationApp;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+import app.models.Donation;
+import app.models.DonationServiceAPI;
+
+public class Report extends Activity implements Response &lt;Donation&gt;
+{
+  private ListView        listView;
+  private DonationApp     app;
+  private DonationAdapter adapter; 
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu)
+  {
+    getMenuInflater().inflate(R.menu.report, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item)
+  {
+    switch (item.getItemId())
+    {
+      case R.id.menuDonate : startActivity (new Intent(this, Donate.class));
+                             break;
+      case R.id.menuLogout : startActivity (new Intent(this, Welcome.class));
+                             break;                               
+    }
+    return true;
+  }  
+
+  @Override
+  public void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_report);
+
+    app = (DonationApp) getApplication();
+
+    listView = (ListView) findViewById(R.id.reportList);
+    adapter = new DonationAdapter (this, app.donations);
+
+    listView.setAdapter(adapter);
+
+    DonationServiceAPI.getDonations(this, this, &quot;Downloading Donations List..&quot;);
+  }
+
+  @Override
+  public void setReponse(List&lt;Donation&gt; aList)
+  {
+    app.donations     = aList;
+    adapter.donations = aList;
+    adapter.notifyDataSetChanged();
+  }
+
+  @Override
+  public void setReponse(Donation anObject)
+  {
+  }
+
+  @Override
+  public void errorOccurred(Exception e)
+  {
+    Toast toast = Toast.makeText(this, &quot;Donation Service Unavailable!&quot;, Toast.LENGTH_LONG);
+    toast.show();
+    startActivity (new Intent(this, Welcome.class));
+  }
+}
+
+class DonationAdapter extends ArrayAdapter&lt;Donation&gt;
+{
+  private Context        context;
+  public  List&lt;Donation&gt; donations;
+
+  public DonationAdapter(Context context, List&lt;Donation&gt; donations)
+  {
+    super(context, R.layout.row_donate, donations);
+    this.context   = context;
+    this.donations = donations;
+  }
+
+  @Override
+  public View getView(int position, View convertView, ViewGroup parent)
+  {
+    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+    View     view       = inflater.inflate(R.layout.row_donate, parent, false);
+    Donation donation   = donations.get(position);
+    TextView amountView = (TextView) view.findViewById(R.id.row_amount);
+    TextView methodView = (TextView) view.findViewById(R.id.row_method);
+
+    amountView.setText(&quot;&quot; + donation.amount);
+    methodView.setText(donation.method);
+
+    return view;
+  }
+
+  @Override
+  public int getCount()
+  {
+    return donations.size();
+  }
+}
+</code></pre>
+
+<p>When this starts - it requests the donations from the service. When they arrive, they are displayed in the list view.</p>
+	  </section>
+	  <section data-tab="Exercises" class="ui tab stacked moodle-book segment">
+	     <h1>Exercises</h1>
+<p>Archive of projects  so far:</p>
+<ul>
+<li><a href="archives/donation-service.zip">donation-service.zip</a></li>
+<li><a href="archives/donation-android.zip">donation-android.zip</a></li>
+</ul>
+<h2>Exercise 1: Cloudbees</h2>
+<p>Publish the donation-service app to Cloudbees. Using the url of the cloudbees app, change the Rest URL:</p>
+<pre><code>public class Rest
+{
+  private static DefaultHttpClient httpClient = null;
+  private static final String URL = &quot;http://10.0.2.2:9000&quot;;
+  //...
+</code></pre>
+
+<p>... to your cloudbees app. See if your android app now reads from the cloudbees app.</p>
+<h2>Exercise 2:</h2>
+<p>The application as it currently stands uses two aspects of the donation play application:</p>
+<ul>
+<li>Let users log in who are already 'registered' online</li>
+<li>Display a list of donations downloaded form the web service</li>
+</ul>
+<p>See if you can figure out how to:</p>
+<ul>
+<li>when users sign up, their details are send to the donation-service play app</li>
+<li>when a donation is made, it is sent to the donation-service play app</li>
+</ul>
+<p>The facilities are already in the play app for this, so you will only be making changes to the android application.</p>
+<p>Because the donation-service play app has no UI, keep an eye on the database via the database browser in the usual way:</p>
+<ul>
+<li><a href="http://localhost/@db">http://localhost/@db</a></li>
+</ul>
+<h2>Exercise 3:</h2>
+<p>Migrate over the UI from the donation play app you completed during the summer school. This is a copy of the app here:</p>
+<ul>
+<li><a href="archives/donation.zip">donation.zip</a></li>
+</ul>
+	  </section>
+  <div class="ui fixed bottom borderless menu">'
+    <div class="ui small item"> 
+    <p id="footertext">
+    Prepared by  Eamonn de Leastar (edeleastar@wit.ie). Except where otherwise noted, this content is licensed under a  
+     <a  href="http://creativecommons.org/licenses/by-nc/4.0/" title="External link to http://creativecommons.org/licenses/by-nc/4.0/" 
+       target="_blank">Creative Commons Attribution-NonCommercial 4.0 License
+     </a>
+     </p>
+    </div>
+  </div>   
+    
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-49703418-7']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>  </body>
+ </html>

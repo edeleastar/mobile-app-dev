@@ -1,0 +1,865 @@
+ <!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+   
+     <title> Lab-06-A </title>
+   
+     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+     <link rel="stylesheet" href="./style/semantic/css/semantic.min.css" type="text/css">  
+     <link rel="stylesheet" href="./style/custom/main.css" type="text/css"> 
+   
+     <script src="./style/custom/jquery-2.1.0.min.js"></script> 
+     <script src="./style/custom/jquery.address-1.6.min.js"></script>
+     <script src="./style/semantic/javascript/semantic.min.js"></script>
+   
+     <link rel="stylesheet" href="./style/highlight/school_book.css">
+     <script src="./style/highlight/highlight.pack.js"></script> 
+     <script>hljs.initHighlightingOnLoad();</script>
+   
+     <script src="./style/custom/common.js"> </script> 
+     <script src="./style/custom/main.js"> </script> 
+  </head>
+  <body>
+  <nav class="ui fixed top pointing borderless inverted menu">
+    <header class="header item"> <a href="../index.html">API Test + Android App Basics</a></header>
+    <div class="right tab-menu menu">
+          <a class="item" data-tab="Lab-06-A"> Lab-06-A </a>
+          <a class="item" data-tab="01"> 01 </a>
+          <a class="item" data-tab="02"> 02 </a>
+          <a class="item" data-tab="03"> 03 </a>
+          <a class="item" data-tab="04"> 04 </a>
+          <a class="item" data-tab="05"> 05 </a>
+          <a class="item" data-tab="06"> 06 </a>
+          <a class="item" data-tab="07"> 07 </a>
+          <a class="item" data-tab="08"> 08 </a>
+          <a class="item" data-tab="Exercises"> Exercises </a>
+    </div>
+  </nav>
+
+  <br>
+
+	  <section data-tab="Lab-06-A" class="ui tab stacked moodle-book segment">
+	     <h1>Objectives</h1>
+<ul>
+<li>Design a new java project to specifically test the coffeemate api</li>
+<li>Build utility classes to simplify the tests</li>
+<li>Enhance coffemate-service to enable Coffee objects to be created</li>
+</ul>
+	  </section>
+	  <section data-tab="01" class="ui tab stacked moodle-book segment">
+	     <h1>Create Test Project</h1>
+<p>In Eclipse, create a new standard Java project called 'coffeemate-test'. </p>
+<p>The following archive contains a set of jar files to be used by this project:</p>
+<ul>
+<li><a href="archives/jar-archives.zip">jar-archives.zip</a></li>
+</ul>
+<p>Download and unzip this archive somewhere convenient.</p>
+<p>In Eclipse, create a new 'folder' called lib (not a 'source folder') in your project, and drag and drop (copy) all of the jar files into that folder.</p>
+<p>Still in eclipse, select all of the jar files, right click, and select 'add to build path'. This will place all of these jars on the path for the project.</p>
+<p>In addition to the above libraries, also add JUnit 4 to your project. This can be done through Project-&gt;Properties-&gt;Build Path-&gt;Libraries-&gt;Add Library.</p>
+<p>Your project should now look like this:</p>
+<p><img alt="" src="img/00.png"></p>
+<p>These are a set of libraries which will greatly simplify the task of testing our API. They include the following:</p>
+<ul>
+<li><a href="http://hc.apache.org">http://hc.apache.org</a></li>
+<li><a href="http://hc.apache.org/httpcomponents-client-ga/tutorial/html/fluent.html">http://hc.apache.org/httpcomponents-client-ga/tutorial/html/fluent.html</a></li>
+<li><a href="https://code.google.com/p/guava-libraries/wiki/GuavaExplained">https://code.google.com/p/guava-libraries/wiki/GuavaExplained</a></li>
+</ul>
+<p>plus other libraries that these components rely on.</p>
+	  </section>
+	  <section data-tab="02" class="ui tab stacked moodle-book segment">
+	     <h1>Coffeemate Facade</h1>
+<p>Create two packages in the src folder called:</p>
+<ul>
+<li>ie.cm.api</li>
+<li>test</li>
+</ul>
+<p>In ie.cm.api, create a new class called Rest, this is the complete source for this class:</p>
+<pre><code class="java">package ie.cm.api;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
+public class Rest
+{
+  private static DefaultHttpClient httpClient = null;
+  private static final String URL = &quot;http://localhost:9000&quot;;
+
+  private static DefaultHttpClient httpClient()
+  {
+    if (httpClient == null)
+    {
+      HttpParams httpParameters = new BasicHttpParams();
+      HttpConnectionParams.setConnectionTimeout(httpParameters, 2000);
+      HttpConnectionParams.setSoTimeout(httpParameters, 2000);
+      httpClient = new DefaultHttpClient(httpParameters);
+    }
+    return httpClient;
+  }
+
+  public static String get(String path) throws Exception
+  {
+    HttpGet getRequest = new HttpGet(URL + path);
+    getRequest.setHeader(&quot;accept&quot;, &quot;application/json&quot;);
+    HttpResponse response = httpClient().execute(getRequest);
+    return new BasicResponseHandler().handleResponse(response);
+  }
+}
+</code></pre>
+
+<p>Still in ie.cm.api, create the following three classes:</p>
+<h2>Coffee</h2>
+<pre><code class="java">package ie.cm.api;
+
+import com.google.common.base.Objects;
+
+public class Coffee
+{
+  public Long   id;
+  public String name;
+  public String shop;
+  public double rating;
+  public double price;
+  public int    favourite;
+
+  public Coffee()
+  {   
+  }
+
+  public Coffee(String coffeeName, String shop, double rating, double price, int favourite)
+  {
+    this.name      = coffeeName;
+    this.shop      = shop;
+    this.rating    = rating;
+    this.price     = price;
+    this.favourite = favourite;
+  }
+
+  @Override
+  public boolean equals(final Object obj)
+  {
+    if (obj instanceof Coffee)
+    {
+      final Coffee other = (Coffee) obj;
+      return Objects.equal(name,      other.name) 
+          &amp;&amp; Objects.equal(shop,      other.shop)
+          &amp;&amp; Objects.equal(rating,    other.rating)
+          &amp;&amp; Objects.equal(price,     other.price)           
+          &amp;&amp; Objects.equal(favourite, other.favourite);                     
+    }
+    else
+    {
+      return false;
+    }
+  }  
+
+  public String toString()
+  {
+    return Objects.toStringHelper(this)
+        .add(&quot;id&quot;,        id)
+        .add(&quot;name&quot;,      name)
+        .add(&quot;shop&quot;,      shop)
+        .add(&quot;rating&quot;,    rating)
+        .add(&quot;price&quot;,     price)
+        .add(&quot;favourite&quot;, favourite).toString();
+  } 
+}
+</code></pre>
+
+<h2>JsonParsers</h2>
+<pre><code class="java">package ie.cm.api;
+
+import java.lang.reflect.Type;
+import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+public class JsonParsers
+{
+  static Gson gson = new Gson(); 
+
+  public static Coffee json2Coffee(String json)
+  {
+    return gson.fromJson(json, Coffee.class);    
+  }
+
+  public static String coffee2Json(Object obj)
+  {
+    return gson.toJson(obj);
+  }  
+
+  public static List&lt;Coffee&gt; json2Coffees(String json)
+  {
+    Type collectionType = new TypeToken&lt;List&lt;Coffee&gt;&gt;() {}.getType();
+    return gson.fromJson(json, collectionType);    
+  }  
+}
+</code></pre>
+
+<h3>CoffeeAPI</h3>
+<pre><code class="java">package ie.cm.api;
+
+
+public class CoffeeAPI
+{
+
+  public static Coffee getCoffee (Long id) throws Exception
+  {
+    String coffeeStr = Rest.get(&quot;/api/coffee/&quot; + id);
+    Coffee coffee = JsonParsers.json2Coffee(coffeeStr);
+    return coffee;
+  }
+}
+</code></pre>
+
+<p>Note that the first two class are (almost) identical to two of the classes in the companion coffeemate-service play project. Check these similarities now.</p>
+	  </section>
+	  <section data-tab="03" class="ui tab stacked moodle-book segment">
+	     <h1>First Test</h1>
+<p>Still in coffeemate-test project, in the test package, bring in this class here:</p>
+<pre><code>package test;
+
+import org.junit.Test;
+
+import coffeeservice.Coffee;
+import coffeeservice.CoffeeAPI;
+
+import utils.Rest;
+
+public class CoffeeTest
+{
+  @Test
+  public void testGetCoffee () throws Exception
+  {
+     String coffeeStr = Rest.get(&quot;/api/coffee/&quot; + 1);
+     System.out.println(coffeeStr);
+  }
+}
+</code></pre>
+
+<p>Now launch the current version of the coffemate-service play project. In order to make sure the project is properly loaded, browse to the usual web interface:</p>
+<ul>
+<li><a href="http://localhost:9000/">http://localhost:9000/</a></li>
+</ul>
+<p>Now in the coffeemate-test project, select the CoffeeTest class, right click, and select 'Run as -&gt; JUnit Test'.</p>
+<p>This should display the Eclipse JUnit test runner:</p>
+<p><img alt="" src="img/02.png"></p>
+<p>In addition - we should see in the 'Console' view in eclipse, the output of the test we have written above:</p>
+<p><img alt="" src="img/03.png"></p>
+<p>Can you see what it happening here? We are issuing a request - over http - to this url:</p>
+<p><a href="http://localhost:9000/api/coffee/1">http://localhost:9000/api/coffee/1</a></p>
+<p>and retrieving the coffee object with ID 1.</p>
+<p>Comment out the two lines in the above code - and replace them with the following:</p>
+<pre><code class="java">    Coffee coffee = CoffeeAPI.getCoffee(2l);
+    System.out.println(coffee);
+</code></pre>
+
+<p>Run the test again. The result should be almost identical. Uncomment the test such that it looks like this:</p>
+<pre><code class="java">    String coffeeStr = Rest.get(&quot;/api/coffee/&quot; + 1);
+    System.out.println(coffeeStr);
+    Coffee coffee = CoffeeAPI.getCoffee(2l);
+    System.out.println(coffee);
+</code></pre>
+
+<p>Running the test again, you should see this:</p>
+<pre><code>{&quot;favourite&quot;:0,&quot;id&quot;:1,&quot;name&quot;:&quot;one&quot;,&quot;price&quot;:2.0,&quot;rating&quot;:3.5,&quot;shop&quot;:&quot;here&quot;}
+Coffee{id=2, name=two, shop=there, rating=4.5, price=3.0, favourite=1}
+</code></pre>
+
+<p>What is the difference between the two lines output?</p>
+	  </section>
+	  <section data-tab="04" class="ui tab stacked moodle-book segment">
+	     <h1>Complete CoffeeTest</h1>
+<p>The test we have written is not actually a test, as it contains no assert statements. It merely prints some data to the console. We should rewrite it such that it does a proper test. i.e. verify that we receive a specific, agreed object from the coffemate-service.</p>
+<p>Replace CoffeeTest with the following version:</p>
+<pre><code class="java">package test;
+
+import static org.junit.Assert.*;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import coffeeservice.Coffee;
+import coffeeservice.CoffeeAPI;
+
+public class CoffeeTest
+{
+  private Coffee localCoffee;
+
+  @Before
+  public void setup()
+  {
+    localCoffee = new Coffee (&quot;two&quot;, &quot;there&quot;, 4.5, 3.0, 1);
+  }
+
+  @After
+  public void teardown()
+  {
+    localCoffee = null; 
+  }
+
+  @Test
+  public void testGetCoffee () throws Exception
+  {
+    Coffee coffee = CoffeeAPI.getCoffee(2l);
+    assertEquals (localCoffee, coffee);
+  }
+}
+</code></pre>
+
+<p>and run it in the same way. This time the JUnit test runner should report success - with a 'green bar' state.</p>
+<p>Carefully read the test itself:</p>
+<pre><code class="java">    Coffee coffee = CoffeeAPI.getCoffee(2l);
+    assertEquals (localCoffee, coffee);
+</code></pre>
+
+<p>We are requesting a coffee object with id 2, and, when we get it, verifying that it equals another (test) object we have created just for this purpose.</p>
+<p>Just to confirm everything is behaving as expected, change the localCoffee object slightly (say setting favorite to 0). Run the test. It should fail. Correct the test to run successfully again.</p>
+	  </section>
+	  <section data-tab="05" class="ui tab stacked moodle-book segment">
+	     <h1>Improving the Service</h1>
+<p>Our service interface - implemented in CoffeeServiceAPI is still fairly simple:</p>
+<pre><code class="java">public class CoffeeServiceAPI extends Controller
+{
+  public static void getCoffees()
+  {
+    List&lt;Coffee&gt; coffees = Coffee.findAll();
+    renderText(coffees.get(0));
+  }
+
+  public static void coffee (Long id)
+  {
+   Coffee coffee = Coffee.findById(id);
+   renderJSON (JsonParsers.coffee2Json(coffee));
+  }
+}
+</code></pre>
+
+<p>... and is routed via these entries in the routes file:</p>
+<pre><code>GET     /api/coffees                           CoffeeServiceAPI.getCoffees
+GET     /api/coffee/{id}                       CoffeeServiceAPI.coffee
+</code></pre>
+
+<p>The second route is adequate - but we delete the first method and route. Our ServiceAPI should look like this:</p>
+<pre><code class="java">public class CoffeeServiceAPI extends Controller
+{
+  public static void coffee (Long id)
+  {
+   Coffee coffee = Coffee.findById(id);
+   renderJSON (JsonParsers.coffee2Json(coffee));
+  }
+}
+</code></pre>
+
+<p>.. and our route. Note we have made it plural:</p>
+<pre><code>GET     /api/coffees/{id}                       CoffeeServiceAPI.coffee
+</code></pre>
+
+<p>Now introduce the following new route:</p>
+<pre><code>GET     /api/coffees                            CoffeeServiceAPI.coffees
+</code></pre>
+
+<p>Look carefully at the change - both routes begin with /api/coffees (note the plural coffeeS), but route to different methods. We already have coffee implemented, here is a first attempt at coffees:</p>
+<pre><code class="java">  public static void coffees()
+  {
+    List&lt;Coffee&gt; coffees = Coffee.findAll();
+    renderText(JsonParsers.coffee2Json(coffees));
+  }
+</code></pre>
+
+<p>Run the app again and browse to:</p>
+<ul>
+<li><a href="http://localhost:9000/api/coffees">http://localhost:9000/api/coffees</a></li>
+</ul>
+<p>The browser should return:</p>
+<pre><code>[{&quot;favourite&quot;:0,&quot;id&quot;:1,&quot;name&quot;:&quot;one&quot;,&quot;price&quot;:2.0,&quot;rating&quot;:3.5,&quot;shop&quot;:&quot;here&quot;},{&quot;favourite&quot;:1,&quot;id&quot;:2,&quot;name&quot;:&quot;two&quot;,&quot;price&quot;:3.0,&quot;rating&quot;:4.5,&quot;shop&quot;:&quot;there&quot;}]
+</code></pre>
+
+<p>This is a little hard to read. Chrome has a browser extension that can make this task more effective. You may have installed this last week. If not, on chrome, search for "Postman Rest Client". You may get this link here:</p>
+<ul>
+<li><a href="https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm?hl=en">Postman</a></li>
+</ul>
+<p>Install the package - and when you launch it you should see something like this:</p>
+<p><img alt="" src="img/04.png"></p>
+<p>Now enter our request <code>http://localhost:9000/api/coffees</code> - and we should see this:</p>
+<p><img alt="" src="img/05.png"></p>
+<p>Pressing the Json button presents the data in a more readable format:</p>
+<p><img alt="" src="img/06.png"></p>
+<p>This is a very useful tool for experimentally verifying that our API is behaving as expected.</p>
+	  </section>
+	  <section data-tab="06" class="ui tab stacked moodle-book segment">
+	     <h1>Creating coffee objects</h1>
+<p>We can read individual coffee objects, or a collection of coffees. How about Creating a coffee object?</p>
+<p>In order to do this we will need an additional utility class in our coffemate-service Play project. In the utils package, import this class here:</p>
+<pre><code class="java">package utils;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import play.data.binding.Global;
+import play.data.binding.TypeBinder;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+
+@Global
+public class GsonBinder implements TypeBinder&lt;JsonElement&gt;
+{
+  public Object bind(String name, Annotation[] notes, String value, Class toClass, Type toType) throws Exception
+  {
+    return new JsonParser().parse(value);
+  }
+}
+</code></pre>
+
+<p>The purpose of this class is rather opaque. Its task is to help deliver a Json payload to our controllers. Dont worry about how this is done - we will never need to change this class - so we can merely include it as is.</p>
+<p>Introduce this new route here:</p>
+<pre><code>POST    /api/coffees                           CoffeeServiceAPI.createCoffee
+</code></pre>
+
+<p>and the method in the controller to handle this route:</p>
+<pre><code class="java">  public static void createCoffee(JsonElement body)
+  {
+    Coffee coffee = JsonParsers.json2Coffee(body.toString());
+    coffee.save();
+    renderJSON (JsonParsers.coffee2Json(coffee));
+  } 
+</code></pre>
+
+<p>You will need to import JsonElement at the top of the file:</p>
+<pre><code>import com.google.gson.JsonElement
+</code></pre>
+
+<p>Before writing a test - which would be the logical next step - we can use Postman to manually drive the api and generate the appropriate http request.</p>
+<p>This time it is a bit more complicated however - as we are generating a POST request, not a single GET like last time. In addition, we need to include a payload, which is to contain a json version of a coffee object.</p>
+<p>First we need to specify 2 headers:</p>
+<pre><code>Content-Type: application/json
+</code></pre>
+
+<p>These are specified using the "Header" button on the right. If you figure it out, it should look like this:</p>
+<p><img alt="" src="img/08.png"></p>
+<p>Then we need to specify the payload - also called 'form data':</p>
+<p><img alt="" src="img/09.png"></p>
+<p>In the above, we selected 'raw' and 'json' and entered the following data:</p>
+<pre><code class="javascript">{
+  &quot;name&quot; : &quot;mocha&quot;,
+  &quot;shop&quot; : &quot;costa&quot;
+}
+</code></pre>
+
+<p>Note carefully the ',' separating the two values. Before running the coffeemate-service, disable the loading for data.yaml first:</p>
+<pre><code class="java">@OnApplicationStart
+public class Bootstrap extends Job 
+{ 
+  public void doJob()
+  {
+   //Fixtures.loadModels(&quot;data.yml&quot;);
+  }
+}
+</code></pre>
+
+<p>Run the app again, and press 'Send' in Postman. If all goes correctly, then coffeemate-service should respond with a new coffeemate object:</p>
+<p><img alt="" src="img/10.png"></p>
+<p>See if you can verify that this has in fact been created in the database.</p>
+<p>Create a few more coffee objects - give them different names and process. After each one is sent, check the database for these new values.</p>
+<p>Notice that you can 'save' requests in postman. This allows you to construct different requests and run them again later. They appear in the list on the left in postman.</p>
+	  </section>
+	  <section data-tab="07" class="ui tab stacked moodle-book segment">
+	     <h1>Testing Create Coffee</h1>
+<p>Now that we have proved we can create coffee objects using POST - we should write a test in Java that does just that.</p>
+<p>Returning to the coffeemate-test project, we need a new method in the Rest class:</p>
+<pre><code class="java">  public static String post(String path, String json) throws Exception
+  {
+    HttpPost putRequest = new HttpPost(URL + path);
+    putRequest.setHeader(&quot;Content-type&quot;, &quot;application/json&quot;);
+    putRequest.setHeader(&quot;accept&quot;, &quot;application/json&quot;);
+
+    StringEntity s = new StringEntity(json);
+    s.setContentEncoding(&quot;UTF-8&quot;);
+    s.setContentType(&quot;application/json&quot;);
+    putRequest.setEntity(s);
+
+    HttpResponse response = httpClient().execute(putRequest);
+    return new BasicResponseHandler().handleResponse(response);
+  }
+</code></pre>
+
+<p>This will be used to formulate a POST request.</p>
+<p>In CoffeeAPI class (in the coffeemate-test project), introduce these two new methods:</p>
+<pre><code class="java">  public static Coffee createCoffee(String coffeeJson) throws Exception
+  {
+    String response = Rest.post (&quot;/api/coffees&quot;, coffeeJson);
+    return JsonParsers.json2Coffee(response);
+  }
+
+  public static Coffee createCoffee(Coffee coffee) throws Exception
+  {
+    return createCoffee(JsonParsers.coffee2Json(coffee));
+  }
+</code></pre>
+
+<p>These provide a higher level mechanism for creating coffee objects using the API.</p>
+<p>Now, in CoffeeTest, we can write an elegant test:</p>
+<pre><code class="java">  @Test
+  public void testCreateCoffee () throws Exception
+  {
+    Coffee coffee =  new Coffee (&quot;cappucino&quot;, &quot;starbucks&quot;, 1.5, 4.0, 0);
+    Coffee returnedCoffee = CoffeeAPI.createCoffee(coffee);
+
+    assertEquals (coffee, returnedCoffee);
+  }
+</code></pre>
+
+<p>Our existing test should be commented out now, as it is no longer reliable.
+Run this new test - it should pass. </p>
+<p>Inspect the database - you should see the 'cappucino' created. If you run the test a few times, then you will get multiple cappuccino coffees created.</p>
+	  </section>
+	  <section data-tab="08" class="ui tab stacked moodle-book segment">
+	     <h1>Sources</h1>
+<p>The two projects should look something like this:</p>
+<p><img alt="" src="img/12.png"></p>
+<p><img alt="" src="img/13.png"></p>
+<p>These are the respective archives:</p>
+<ul>
+<li><a href="archives/coffeemate-service-lab06.zip">coffeemate-service-lab06.zip</a></li>
+<li><a href="archives/coffeemate-test-lab06.zip">coffeemate-test-lab06.zip</a></li>
+</ul>
+<p>Here are (slightly revised) version of the sources:</p>
+<h2>coffeemate-service</h2>
+<h3>Coffee</h3>
+<pre><code class="java">@Entity
+public class Coffee extends Model
+{
+  public String name;
+  public String shop;
+  public double rating;
+  public double price;
+  public int    favourite;
+
+  public Coffee(String coffeeName, String shop, double rating, double price, int favourite)
+  {
+    this.name      = coffeeName;
+    this.shop      = shop;
+    this.rating    = rating;
+    this.price     = price;
+    this.favourite = favourite;
+  }
+
+  @Override
+  public boolean equals(final Object obj)
+  {
+    if (obj instanceof Coffee)
+    {
+      final Coffee other = (Coffee) obj;
+      return Objects.equal(name,      other.name) 
+          &amp;&amp; Objects.equal(shop,      other.shop)
+          &amp;&amp; Objects.equal(rating,    other.rating)
+          &amp;&amp; Objects.equal(price,     other.price)           
+          &amp;&amp; Objects.equal(favourite, other.favourite);                     
+    }
+    else
+    {
+      return false;
+    }
+  }  
+
+  public String toString()
+  {
+    return Objects.toStringHelper(this)
+        .add(&quot;Id&quot;, id)
+        .add(&quot;name&quot;,      name)
+        .add(&quot;shop&quot;,      shop)
+        .add(&quot;rating&quot;,    rating)
+        .add(&quot;price&quot;,     price)
+        .add(&quot;favourite&quot;, favourite).toString();
+  } 
+}
+</code></pre>
+
+<h3>CoffeServiceAPI</h3>
+<pre><code class="java">public class CoffeeServiceAPI extends Controller
+{
+  public static void coffees()
+  {
+    List&lt;Coffee&gt; coffees = Coffee.findAll();
+    renderText(JsonParsers.coffee2Json(coffees));
+  }
+
+  public static void coffee (Long id)
+  {
+   Coffee coffee = Coffee.findById(id);
+   renderJSON (JsonParsers.coffee2Json(coffee));
+  }
+
+  public static void createCoffee(JsonElement body)
+  {
+    Coffee coffee = JsonParsers.json2Coffee(body.toString());
+    coffee.save();
+    renderJSON (JsonParsers.coffee2Json(coffee));
+  }  
+}
+</code></pre>
+
+<h3>routes</h3>
+<pre><code># Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                                      Application.index
+
+GET     /api/coffees                           CoffeeServiceAPI.coffees
+GET     /api/coffees/{id}                      CoffeeServiceAPI.coffee
+POST    /api/coffees                           CoffeeServiceAPI.createCoffee
+
+# Ignore favicon requests
+GET     /favicon.ico                            404
+
+# Map static resources from the /app/public folder to the /public path
+GET     /public/                                staticDir:public
+
+# Catch all
+*       /{controller}/{action}                  {controller}.{action}
+
+</code></pre>
+
+<h2>coffeemate-test</h2>
+<h2>Coffee</h2>
+<pre><code class="java">public class Coffee
+{
+  public Long   id;
+  public String name;
+  public String shop;
+  public double rating;
+  public double price;
+  public int    favourite;
+
+  public Coffee()
+  {   
+  }
+
+  public Coffee(String coffeeName, String shop, double rating, double price, int favourite)
+  {
+    this.name      = coffeeName;
+    this.shop      = shop;
+    this.rating    = rating;
+    this.price     = price;
+    this.favourite = favourite;
+  }
+
+  @Override
+  public boolean equals(final Object obj)
+  {
+    if (obj instanceof Coffee)
+    {
+      final Coffee other = (Coffee) obj;
+      return Objects.equal(name,      other.name) 
+          &amp;&amp; Objects.equal(shop,      other.shop)
+          &amp;&amp; Objects.equal(rating,    other.rating)
+          &amp;&amp; Objects.equal(price,     other.price)           
+          &amp;&amp; Objects.equal(favourite, other.favourite);                     
+    }
+    else
+    {
+      return false;
+    }
+  }  
+
+  public String toString()
+  {
+    return Objects.toStringHelper(this)
+        .add(&quot;id&quot;,        id)
+        .add(&quot;name&quot;,      name)
+        .add(&quot;shop&quot;,      shop)
+        .add(&quot;rating&quot;,    rating)
+        .add(&quot;price&quot;,     price)
+        .add(&quot;favourite&quot;, favourite).toString();
+  } 
+}
+</code></pre>
+
+<h3>CoffeeAPI</h3>
+<pre><code class="java">public class CoffeeAPI
+{  
+  public static Coffee getCoffee (Long id) throws Exception
+  {
+    String coffeeStr = Rest.get(&quot;/api/coffees/&quot; + id);
+    Coffee coffee = JsonParsers.json2Coffee(coffeeStr);
+    return coffee;
+  }
+
+  public static Coffee createCoffee(String coffeeJson) throws Exception
+  {
+    String response = Rest.post (&quot;/api/coffees&quot;, coffeeJson);
+    return JsonParsers.json2Coffee(response);
+  }
+
+  public static Coffee createCoffee(Coffee coffee) throws Exception
+  {
+    return createCoffee(JsonParsers.coffee2Json(coffee));
+  }
+
+  public static List&lt;Coffee&gt; getCoffees () throws Exception
+  {
+    String response =  Rest.get(&quot;/api/coffees&quot;);
+    List&lt;Coffee&gt; coffeeList = JsonParsers.json2Coffees(response);
+    return coffeeList;
+  } 
+}
+</code></pre>
+
+<h3>Rest</h3>
+<pre><code class="java">public class Rest
+{
+  private static DefaultHttpClient httpClient = null;
+  private static final String URL = &quot;http://localhost:9000&quot;;
+
+  private static DefaultHttpClient httpClient()
+  {
+    if (httpClient == null)
+    {
+      HttpParams httpParameters = new BasicHttpParams();
+      HttpConnectionParams.setConnectionTimeout(httpParameters, 2000);
+      HttpConnectionParams.setSoTimeout(httpParameters, 2000);
+      httpClient = new DefaultHttpClient(httpParameters);
+    }
+    return httpClient;
+  }
+
+  public static String get(String path) throws Exception
+  {
+    HttpGet getRequest = new HttpGet(URL + path);
+    getRequest.setHeader(&quot;accept&quot;, &quot;application/json&quot;);
+    HttpResponse response = httpClient().execute(getRequest);
+    return new BasicResponseHandler().handleResponse(response);
+  }
+
+  public static String post(String path, String json) throws Exception
+  {
+    HttpPost putRequest = new HttpPost(URL + path);
+    putRequest.setHeader(&quot;Content-type&quot;, &quot;application/json&quot;);
+    putRequest.setHeader(&quot;accept&quot;, &quot;application/json&quot;);
+
+    StringEntity s = new StringEntity(json);
+    s.setContentEncoding(&quot;UTF-8&quot;);
+    s.setContentType(&quot;application/json&quot;);
+    putRequest.setEntity(s);
+
+    HttpResponse response = httpClient().execute(putRequest);
+    return new BasicResponseHandler().handleResponse(response);
+  }
+}
+</code></pre>
+
+<h3>CoffeeTest</h3>
+<pre><code class="java">public class CoffeeTest
+{
+  private Coffee mocha;
+  private long   mochaId;
+
+  @Before
+  public void setup() throws Exception
+  {
+    Coffee returnedCoffee;
+
+    mocha     = new Coffee (&quot;mocha&quot;,     &quot;costa&quot;,  4.5, 3.0, 1);
+    returnedCoffee = CoffeeAPI.createCoffee(mocha);
+    mochaId = returnedCoffee.id;
+  }
+
+  @After
+  public void teardown()
+  {
+    mocha     = null; 
+  }
+
+  @Test
+  public void testCreateCoffee () throws Exception
+  {
+    assertEquals (mocha, CoffeeAPI.getCoffee(mochaId));
+  }
+}
+</code></pre>
+
+<p>This file is shared by both projects:</p>
+<h3>JsonParsers</h3>
+<pre><code class="java">public class JsonParsers
+{
+  static Gson gson = new Gson();
+
+  public static String user2Json(Object obj)
+  {
+    return gson.toJson(obj);
+  }  
+
+  public static Coffee json2Coffee(String json)
+  {
+    return gson.fromJson(json, Coffee.class);    
+  }
+
+  public static String coffee2Json(Object obj)
+  {
+    return gson.toJson(obj);
+  }  
+
+  public static List&lt;Coffee&gt; json2Coffees(String json)
+  {
+    Type collectionType = new TypeToken&lt;List&lt;Coffee&gt;&gt;() {}.getType();
+    return gson.fromJson(json, collectionType);    
+  }  
+}
+</code></pre>
+	  </section>
+	  <section data-tab="Exercises" class="ui tab stacked moodle-book segment">
+	     <h1>Exercises</h1>
+<h2>Test Coffee create and get</h2>
+<p>Rework CoffeeTest class to be a more comprehensive test. i.e. it should create a number of coffee objects and, once created, check to see if they exist.</p>
+<h2>Delete coffee</h2>
+<p>How would we go about deleting a coffee? It might have some similarities to the getCoffee route?</p>
+<h2>Test coffee list get</h2>
+<p>Our list coffees api should still be working nicely:</p>
+<ul>
+<li><a href="http://localhost:9000/api/coffees">http://localhost:9000/api/coffees</a></li>
+</ul>
+<p>How would we approach writing a test for this?</p>
+<h2>Cloudbees</h2>
+<p>See if you can publish the coffeemate-service to cloudbees. Can you then run the test to use the Cloudbees version instead of local one?</p>
+<h1>Solutions</h1>
+<p>The solutions to the above exercises will be the subject of next weeks lab.</p>
+	  </section>
+  <div class="ui fixed bottom borderless menu">'
+    <div class="ui small item"> 
+    <p id="footertext">
+    Prepared by  Eamonn de Leastar (edeleastar@wit.ie). Except where otherwise noted, this content is licensed under a  
+     <a  href="http://creativecommons.org/licenses/by-nc/4.0/" title="External link to http://creativecommons.org/licenses/by-nc/4.0/" 
+       target="_blank">Creative Commons Attribution-NonCommercial 4.0 License
+     </a>
+     </p>
+    </div>
+  </div>   
+    
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-49703418-7']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>  </body>
+ </html>

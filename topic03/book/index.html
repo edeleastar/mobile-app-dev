@@ -1,0 +1,718 @@
+ <!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+   
+     <title> Lab-03 </title>
+   
+     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+     <link rel="stylesheet" href="./style/semantic/css/semantic.min.css" type="text/css">  
+     <link rel="stylesheet" href="./style/custom/main.css" type="text/css"> 
+   
+     <script src="./style/custom/jquery-2.1.0.min.js"></script> 
+     <script src="./style/custom/jquery.address-1.6.min.js"></script>
+     <script src="./style/semantic/javascript/semantic.min.js"></script>
+   
+     <link rel="stylesheet" href="./style/highlight/school_book.css">
+     <script src="./style/highlight/highlight.pack.js"></script> 
+     <script>hljs.initHighlightingOnLoad();</script>
+   
+     <script src="./style/custom/common.js"> </script> 
+     <script src="./style/custom/main.js"> </script> 
+  </head>
+  <body>
+  <nav class="ui fixed top pointing borderless inverted menu">
+    <header class="header item"> <a href="../index.html">Git Repositories</a></header>
+    <div class="right tab-menu menu">
+          <a class="item" data-tab="Lab-03"> Lab-03 </a>
+          <a class="item" data-tab="01"> 01 </a>
+          <a class="item" data-tab="02"> 02 </a>
+          <a class="item" data-tab="03"> 03 </a>
+          <a class="item" data-tab="04"> 04 </a>
+          <a class="item" data-tab="05"> 05 </a>
+          <a class="item" data-tab="06"> 06 </a>
+          <a class="item" data-tab="07"> 07 </a>
+          <a class="item" data-tab="08"> 08 </a>
+          <a class="item" data-tab="09"> 09 </a>
+          <a class="item" data-tab="10"> 10 </a>
+          <a class="item" data-tab="Exercises"> Exercises </a>
+    </div>
+  </nav>
+
+  <br>
+
+	  <section data-tab="Lab-03" class="ui tab stacked moodle-book segment">
+	     <h1>Objectives</h1>
+<ul>
+<li>Explore the primary features of a git repository</li>
+<li>Set up a repository for a Play project in eclipse</li>
+<li>Progressively introduce and commit new features</li>
+<li>Review the repository in Sourcetree</li>
+<li>Push the repository to bitbucket - a cloud provider of git services.</li>
+</ul>
+	  </section>
+	  <section data-tab="01" class="ui tab stacked moodle-book segment">
+	     <h1>Install Git, Sourcetree &amp; Egit</h1>
+<h2>Git</h2>
+<p>Download and install git on your pc:</p>
+<ul>
+<li><a href="http://git-scm.com/downloads">http://git-scm.com/downloads</a></li>
+</ul>
+<p>Accept the default settings.</p>
+<h2>Sourcetree</h2>
+<p>When this has completed, install sourcetree on your PC</p>
+<ul>
+<li><a href="http://www.atlassian.com/software/sourcetree/overview">http://www.atlassian.com/software/sourcetree/overview</a></li>
+</ul>
+<p>Again, accept the default settings. During the install you will be asked to enter your full name + email.</p>
+<h2>Egit</h2>
+<p>Finally, install egit - an extension for Eclipse. To do this:</p>
+<ul>
+<li>In Eclipse select Window-&gt;Install new Software:</li>
+</ul>
+<p><img alt="" src="img/01.png"></p>
+<p>Press 'Add' and paste the following : "Egit" and "http://download.eclipse.org/egit/updates" into the dialog as shown:</p>
+<p><img alt="" src="img/02.png"></p>
+<p>Press 'Ok' and select all components:</p>
+<p><img alt="" src="img/03.png"></p>
+<p>Press 'Next' and proceed through install, accepting license agreement on the way. Eclipse will need to restart for the changes to take effect.</p>
+	  </section>
+	  <section data-tab="02" class="ui tab stacked moodle-book segment">
+	     <h1>Create Schema Project</h1>
+<p>Locate your current workspace folder and create a new play project called 'schema':</p>
+<pre><code>play new schema
+</code></pre>
+
+<p>Change into the newly created project, and eclipsify it:</p>
+<pre><code>cd schema
+play eclipsify
+</code></pre>
+
+<p>Now import into eclipse - your project should look like this:</p>
+<p><img alt="" src="img/04.png"></p>
+<p>Run the project:</p>
+<pre><code>play run
+</code></pre>
+
+<p>Browsing to local host:</p>
+<ul>
+<li><a href="http://localhost:9000">http://localhost:9000</a></li>
+</ul>
+<p><img alt="" src="img/05.png"></p>
+<p>Change the template views/Application/index.html</p>
+<pre><code class="html">#{extends 'main.html' /}
+#{set title:'Home' /}
+
+&lt;p&gt; Hello From Play! &lt;/p&gt;
+</code></pre>
+
+<p>and refresh the page:</p>
+<p><img alt="" src="img/06.png"></p>
+	  </section>
+	  <section data-tab="03" class="ui tab stacked moodle-book segment">
+	     <h1>Commit Baseline Schema project to git repository</h1>
+<p>Create a new file in your project folder called '.gitignore'. The file should contain the following:</p>
+<pre><code># Ignore all dotfiles...
+.*
+# except for .gitignore
+!.gitignore
+!.classpath
+!.project
+
+
+# Ignore Play! working directory #
+war
+db
+eclipse
+lib
+log
+logs
+modules
+precompiled
+project/project
+project/target
+crud/*
+data/*
+conf/crud/*
+conf/cloudbees*
+public/crud/*
+target
+tmp
+test-result
+server.pid
+*.iml
+*.eml
+</code></pre>
+
+<p>You may need to use notepad to create this file.</p>
+<p>In eclipse, select the schema project in project explorer, right click and select 'Team-&gt;Share Project'.</p>
+<p><img alt="" src="img/07.png"></p>
+<p><img alt="" src="img/08.png"></p>
+<p>Select Git and press Next:</p>
+<p><img alt="" src="img/09.png"></p>
+<p>Select 'Use or create project in parent folder of project'</p>
+<p><img alt="" src="img/10.png"></p>
+<p>Then highlight the project location, and press 'Create Repository'.</p>
+<p>If all goes according to plan, your project will look like this:</p>
+<p><img alt="" src="img/12.png"></p>
+<p>The workspace looks the same, except many of the artifacts have a question mark associated with them. This means that, although the project is under revision ('git') control, the annotated artifacts are no yet under control.</p>
+<p>To place all of these projects into git, right click on the project and select "Team-&gt;Commit":</p>
+<p><img alt="" src="img/13.png"></p>
+<p>Make sure all files are selected, and enter the comit message as shown above. Press 'Commit',  and the project will now look slightly different:</p>
+<p><img alt="" src="img/14.png"></p>
+<p>These revised icons indicate that the files are now under git control.</p>
+	  </section>
+	  <section data-tab="04" class="ui tab stacked moodle-book segment">
+	     <h1>Create 'Walking Skeleton' Version</h1>
+<p>We will now rebuild the project from Lab09, except this time we will commit each modification to git. Furthermore, we will commit these changes in stages, with suitable commit messages. In a later step we can inspect these messages and even revert to earlier versions if we wish.</p>
+<h2>Models</h2>
+<p>Create these two model classes in models:</p>
+<h3>Player</h3>
+<pre><code class="java">package models;
+
+import javax.persistence.Entity;
+import play.db.jpa.Model;
+
+@Entity
+public class Player extends Model
+{
+  public String name;
+
+  public Player(String name)
+  {
+    this.name = name;
+  }
+
+  public String toString()
+  {
+    return name;
+  }
+}
+</code></pre>
+
+<h3>Club</h3>
+<pre><code class="java">package models;
+
+import javax.persistence.Entity;
+import play.db.jpa.Model;
+
+@Entity
+public class Club extends Model
+{
+  public String name;
+
+  public Club(String name)
+  {
+    this.name = name;
+  }
+
+  public String toString()
+  {
+    return name;
+  }
+}
+</code></pre>
+
+<h2>Skeleton tests</h2>
+<p>Bring in these (empty) test cases into test</p>
+<h3>PlayerTest</h3>
+<pre><code class="java">import org.junit.*;
+
+import java.util.*;
+import play.test.*;
+import models.*;
+
+public class PlayerTest extends UnitTest 
+{
+  @Before
+  public void setup()
+  {
+  }
+
+  @After
+  public void teardown()
+  {
+  }
+
+  @Test
+  public void testCreate()
+  {
+
+  }
+}
+</code></pre>
+
+<h3>ClubTest</h3>
+<pre><code class="java">import org.junit.*;
+
+import java.util.*;
+import play.test.*;
+import models.*;
+
+public class ClubTest extends UnitTest 
+{
+  @Before
+  public void setup()
+  {
+  }
+
+  @After
+  public void teardown()
+  {
+  }
+
+  @Test
+  public void testCreate()
+  {
+
+  }
+}
+</code></pre>
+
+<p>Run the project in test mode:</p>
+<pre><code>play test
+</code></pre>
+
+<p>and verify that the test and admin consoles appear:</p>
+<ul>
+<li><a href="http://localhost:9000/@tests">http://localhost:9000/@tests</a></li>
+<li><a href="http://localhost:9000/@db">http://localhost:9000/@db</a></li>
+</ul>
+<p>This complete the 'walking skeleton' phase. </p>
+	  </section>
+	  <section data-tab="05" class="ui tab stacked moodle-book segment">
+	     <h1>Commit "Walking Skeleton" Version</h1>
+<p>Look carefully at the project workspace:</p>
+<p><img alt="" src="img/15.png"></p>
+<p>Note the different icons.</p>
+<ul>
+<li>question marks indicate new files not yet in version control</li>
+<li>' &gt;' indicates a file in version control, but that it has been modified since it was last 'committed'</li>
+<li>no new icon indicates the file is 'ignored' and not committed to git at all. Any files generated by the build are in this category.</li>
+</ul>
+<p>Now we can commit the "walking skeleton" revision to git. Right click on the project and select 'Team-&gt;Commit'.</p>
+<p><img alt="" src="img/16.png"></p>
+<p>Be sure to select the new files you added as shown above. Also enter the commit message as shown.</p>
+<p>Press 'Commit' and the workspace will look a little different:</p>
+<p><img alt="" src="img/17.png"></p>
+<p>Note the change in the icons.</p>
+<p>We now have two versions of the app committed to git - the initial version generated by play and then the walking skeleton we have just committed. Both of these version can be recovered. Try this:</p>
+<p>Right click and select 'Team-&gt;Show in History':</p>
+<p><img alt="" src="img/18.png"></p>
+<p>This shows the two versions of the project we have committed to date. Note the 'id' and comment. We will come back to this view a little later.</p>
+	  </section>
+	  <section data-tab="06" class="ui tab stacked moodle-book segment">
+	     <h1>Commit Simple Player &amp; Club Tests</h1>
+<p>Extend the Player class with this utility method:</p>
+<pre><code class="java">  public static Player findByName(String name)
+  {
+    return find(&quot;name&quot;, name).first();
+  }
+</code></pre>
+
+<p>and this in club:</p>
+<pre><code class="java">  public static Club findByName(String name)
+  {
+    return find(&quot;name&quot;, name).first();
+  } 
+</code></pre>
+
+<p>We can now replace the skeleton (empty) tests with these simple tests:</p>
+<h2>PlayerTest</h2>
+<pre><code class="java">import org.junit.*;
+
+import java.util.*;
+import play.test.*;
+import models.*;
+
+public class PlayerTest extends UnitTest 
+{
+  private Player p1, p2, p3;
+
+  @Before
+  public void setup()
+  {
+    p1 = new Player(&quot;mike&quot;);
+    p2 = new Player(&quot;jim&quot;);
+    p3 = new Player(&quot;frank&quot;);
+    p1.save();
+    p2.save();
+    p3.save();
+  }
+
+  @After
+  public void teardown()
+  {
+    p1.delete();
+    p2.delete();
+    p3.delete();
+  }
+
+  @Test
+  public void testCreate()
+  {
+    Player a = Player.findByName(&quot;mike&quot;);
+    assertNotNull(a);
+    assertEquals(&quot;mike&quot;, a.name);
+    Player b = Player.findByName(&quot;jim&quot;);
+    assertNotNull(b);
+    assertEquals(&quot;jim&quot;, b.name);
+    Player c = Player.findByName(&quot;frank&quot;);
+    assertNotNull(c);
+    assertEquals(&quot;frank&quot;, c.name);
+  }
+
+  @Test
+  public void testNotThere()
+  {
+    Player a = Player.findByName(&quot;george&quot;);
+    assertNull(a);
+  }
+
+}
+</code></pre>
+
+<h2>ClubTest</h2>
+<pre><code class="java">import org.junit.*;
+
+import java.util.*;
+import play.test.*;
+import models.*;
+
+public class ClubTest extends UnitTest 
+{
+  private Club c1, c2, c3;
+
+  @Before
+  public void setup()
+  {
+    c1 = new Club(&quot;tramore&quot;);
+    c2 = new Club(&quot;dunmore&quot;);
+    c3 = new Club(&quot;fenor&quot;);
+    c1.save();
+    c2.save();
+    c3.save();
+  }
+
+  @After
+  public void teardown()
+  {
+    c1.delete();
+    c2.delete();
+    c3.delete();
+  }
+
+  @Test
+  public void testCreate()
+  {
+    Club a = Club.findByName(&quot;tramore&quot;);
+    assertNotNull(a);
+    assertEquals(&quot;tramore&quot;, a.name);
+    Club b = Club.findByName(&quot;dunmore&quot;);
+    assertNotNull(b);
+    assertEquals(&quot;dunmore&quot;, b.name);
+    Club c = Club.findByName(&quot;fenor&quot;);
+    assertNotNull(c);
+    assertEquals(&quot;fenor&quot;, c.name);
+  }
+
+  @Test
+  public void testNotThere()
+  {
+    Club a = Club.findByName(&quot;george&quot;);
+    assertNull(a);
+  }
+}
+</code></pre>
+
+<p>Bring these into the project and verify that the tests pass. Note the status of project, particularly this icons indicating which files have been changed.</p>
+<p>This is a reasonably significant feature - so will commit it to git. Right click on the project, select 'Team-&gt;Commit':</p>
+<p><img alt="" src="img/19.png"></p>
+<p>This time we are not adding any new files, just changes to existing files. Try to notice the indicators in the project changing after the commit.</p>
+<p>We now have three 'commits' in the history view:</p>
+<p><img alt="" src="img/20.png"></p>
+	  </section>
+	  <section data-tab="07" class="ui tab stacked moodle-book segment">
+	     <h1>Commit Club/Player One to Many Relationship</h1>
+<p>Introduce a one-to-many relationship between club and player.</p>
+<p>First, introduce the following imports into Club:</p>
+<pre><code>import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.OneToMany;
+</code></pre>
+
+<p>Then extend the Club class with this new attribute:</p>
+<pre><code class="java">  @OneToMany(cascade=CascadeType.ALL)
+  public List&lt;Player&gt; players;
+</code></pre>
+
+<p>Make sure the constructor creates this attribute:</p>
+<pre><code class="java">  public Club(String name)
+  {
+    this.name = name;
+    this.players = new ArrayList&lt;Player&gt;();
+  }
+</code></pre>
+
+<p>... and this method:</p>
+<pre><code class="java">  public void addPlayer(Player player)
+  {
+    players.add(player);
+  }
+</code></pre>
+
+<p>To verify the relationship, we introduce some new fixture into ClubTest:</p>
+<pre><code class="java">  private Player p1, p2, p3;
+</code></pre>
+
+<p>rework the setup method to create these objects:</p>
+<pre><code class="java">  @Before
+  public void setup()
+  {
+    p1 = new Player(&quot;mike&quot;);
+    p2 = new Player(&quot;jim&quot;);
+    p3 = new Player(&quot;frank&quot;);
+    c1 = new Club(&quot;tramore&quot;);
+    c2 = new Club(&quot;dunmore&quot;);
+    c3 = new Club(&quot;fenor&quot;);
+
+    c1.addPlayer(p1);
+    c1.addPlayer(p2);
+
+    c1.save();
+    c2.save();
+    c3.save();
+  }
+</code></pre>
+
+<p>and we bring in these new tests:</p>
+<pre><code class="java">  @Test
+  public void testPlayers()
+  {
+    Club tramore = Club.findByName(&quot;tramore&quot;);
+
+    assertEquals (2, tramore.players.size());
+
+    Player mike  = Player.findByName(&quot;mike&quot;);
+    Player jim   = Player.findByName(&quot;jim&quot;);
+    Player frank = Player.findByName(&quot;framk&quot;);
+
+    assertTrue  (tramore.players.contains(mike));
+    assertTrue  (tramore.players.contains(jim));
+    assertFalse (tramore.players.contains(frank));
+  }  
+
+  @Test
+  public void testRemovePlayer()
+  {
+    Club tramore = Club.findByName(&quot;tramore&quot;);
+    assertEquals(2, tramore.players.size());
+
+    Player mike  = Player.findByName(&quot;mike&quot;);
+    assertTrue(tramore.players.contains(mike));
+    tramore.players.remove(mike);
+    tramore.save();
+
+    Club c = Club.findByName(&quot;tramore&quot;);
+    assertEquals(1, c.players.size());
+
+    mike.delete();
+  } 
+</code></pre>
+
+<p>Save everything, and verify that the tests all pass.</p>
+<p>Now that the tests pass, commit the modifications to git. See if you can visual locate the (2) changed files first, and then commit them with the commit message "Club/Player one-to-many relationship with tests"</p>
+<p>Your history may now look something like this:</p>
+<p><img alt="" src="img/21.png"></p>
+	  </section>
+	  <section data-tab="08" class="ui tab stacked moodle-book segment">
+	     <h1>Manipulating Repository using Sourcetree</h1>
+<h2>Loading the repository into Sourcetree</h2>
+<p>The repository - which contains all versions of your project, can be inspected in any tool that understands git. Open the Souretree tool you just downloaded.</p>
+<p><img alt="" src="img/23.png"></p>
+<p>In Explorer/Finder, drag and drop your project folder (schema) into the left hand pane. The project should now be browsable as follows:</p>
+<p><img alt="" src="img/24.png"></p>
+<p>Take some time to explore each of the 'commits'. In particular, examine the how you can explore each revision, each file and the changes made to each file. These changes are shown visually in the bottom right (depending on which commit/file you select).</p>
+<h2>Pushing the repository to bitbucket.</h2>
+<p>Create a free account on this service here:</p>
+<p>-<a href="http://bitbucket.org/">http://bitbucket.org/</a></p>
+<p>Once logged in, create a new Repository, and call it schema:</p>
+<p><img alt="" src="img/25.png"></p>
+<p>This should lead you to this screen:</p>
+<p><img alt="" src="img/26.png"></p>
+<p>On the top right, select 'clone' - and in the drop down select 'HTTPS' as shown here:</p>
+<p><img alt="" src="img/27.png"></p>
+<p>We are interested in extracting the path form the text field. It may look something like this:</p>
+<pre><code>https://edel020@bitbucket.org/edel020/schema.git
+</code></pre>
+
+<p>(on your account, edel020 will be your bitbucket username).</p>
+<p>Copy this string to the clipboard. Back in Sourcetree, right click on 'Remotes' and select "New Remote":</p>
+<p><img alt="" src="img/28.png"></p>
+<p>Select 'Add'</p>
+<p><img alt="" src="img/29.png"></p>
+<p>and paste in the url we copied from bitbucket. Now select master and press 'ok'</p>
+<p><img alt="" src="img/30.png"></p>
+<p>Your local repository is now associated with the repository you created on bitbucket. The next step is to 'push' your local change to the remote copy. Press the 'Push' button. You will be asked for your password in this step. After a few minutes your repository will be replicated on the bitbucket servers.</p>
+<p>Browse the project on bitbucket:</p>
+<p><img alt="" src="img/31.png"></p>
+<p>In particular, have a look at the "Commits" view. It provides a more comprehensive view of all of the changes associated with a particular commit.</p>
+	  </section>
+	  <section data-tab="09" class="ui tab stacked moodle-book segment">
+	     <h1>Commit Bidirectional Player/Club</h1>
+<p>We will establish a relationship from player to club - making the existing association bi-directional</p>
+<h2>Club:</h2>
+<p>Change the OneToMany mapping in Club</p>
+<pre><code class="java">   @OneToMany(mappedBy=&quot;club&quot;, cascade=CascadeType.ALL)
+   public List&lt;Player&gt; players;
+</code></pre>
+
+<p>and also the addPlayer method:</p>
+<pre><code class="java">   public void addPlayer(Player player)
+   {
+     player.club = this;
+     players.add(player);
+   }
+</code></pre>
+
+<h2>Player</h2>
+<p>Introduce this import:</p>
+<pre><code class="java">import javax.persistence.ManyToOne;
+</code></pre>
+
+<p>..and this attribute:</p>
+<pre><code class="java">  @ManyToOne
+  public Club club;
+</code></pre>
+
+<h2>ClubTest</h2>
+<p>and a new test to verify the relationship:</p>
+<pre><code class="java">  @Test
+  public void testPlayerClub()
+  {
+    Player mike  = Player.findByName(&quot;mike&quot;);
+    assertNotNull (mike.club);
+    assertEquals (&quot;tramore&quot;, mike.club.name);
+  }
+</code></pre>
+
+<p>Run the tests to make sure everything is as expected.</p>
+<p>Remaining in eclipse, commit the changes we have just made with the commit message 'Bidirectional Club/Player association'.</p>
+<p>Still in Eclipse, select "Team-&gt;Push to Upstream" (you will be asked for your password). This will push the most recent commit to your bitbucket repository. Browse to the bitbucket repo now and verify that the commit has worked. In particular look for the most recent commit message + changes.</p>
+<p>It should look something like this:</p>
+<p><img alt="" src="img/32.png"></p>
+	  </section>
+	  <section data-tab="10" class="ui tab stacked moodle-book segment">
+	     <h1>Checkout Earlier Revision</h1>
+<p>Reverting to an earlier revision - without loosing later versions - is one of the key benefits of using git. We will try now to revert to a version of the project before we introduce the relationship between Club and Player. Locate the 'Repositories' view in eclipse:</p>
+<p><img alt="" src="img/33.png"></p>
+<p>We have 5 versions of the app in the repo. Note each of them has an id, message, author, date etc...</p>
+<p>Suppose we want to revert to the previous version - the one with the message 'Club/Player one-to-many relationship with tests'. Before we do so, open the Model/Player class in the editor - and verify that the following line is in the Player class:</p>
+<pre><code>  @ManyToOne
+  public Club club;
+</code></pre>
+
+<p>In the "History" view, right click on the previous version, and select 'Checkout'</p>
+<p><img alt="" src="img/34.png"></p>
+<p>You should notice that the player class now looks like this:</p>
+<pre><code>package models;
+
+import javax.persistence.Entity;
+import play.db.jpa.Model;
+
+@Entity
+public class Player extends Model
+{
+  public String name;
+
+  public Player(String name)
+  {
+    this.name = name;
+  }
+
+  public String toString()
+  {
+    return name;
+  }
+
+  public static Player findByName(String name)
+  {
+    return find(&quot;name&quot;, name).first();
+  }
+}
+</code></pre>
+
+<p>Also notice that the 'HEAD' tag in history is associated with the previous version:</p>
+<p><img alt="" src="img/35.png"></p>
+<p>Verify that the tests are also testing the previous version.</p>
+<p>Our very last set of changes (Bidirectional Club/Player) have not been lost however. Right click on that version in history, and 'Checkout' again, will see those changes reintroduced.</p>
+<pre><code>package models;
+
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import play.db.jpa.Model;
+
+@Entity
+public class Player extends Model
+{
+  public String name;
+
+  @ManyToOne
+  public Club club;
+
+  public Player(String name)
+  {
+    this.name = name;
+  }
+
+  public String toString()
+  {
+    return name;
+  }
+
+  public static Player findByName(String name)
+  {
+    return find(&quot;name&quot;, name).first();
+  }
+}
+</code></pre>
+	  </section>
+	  <section data-tab="Exercises" class="ui tab stacked moodle-book segment">
+	     <h1>Exercises</h1>
+<h3>Check out experiments</h3>
+<p>Check out and execute each version of the schema app, one at a time. Verify that each version is as expected</p>
+<h3>Check out to another folder</h3>
+<p>Using sourcetree, see if you can check out earlier versions of the app, to different folders. See if you can have several versions of the project, side-by-side, on your pc.</p>
+<h2>Create another repo</h2>
+<p>See if you can create a repository for a standard java application - perhaps your current programming assignment (as opposed to a Play app). Explore the repository both in eclipse and sourcetree.</p>
+<h2>Share your repo</h2>
+<p>Get the bitbucket name of one of your classmates. Find out how to share one of your repos with them.</p>
+	  </section>
+  <div class="ui fixed bottom borderless menu">'
+    <div class="ui small item"> 
+    <p id="footertext">
+    Prepared by  Eamonn de Leastar (edeleastar@wit.ie). Except where otherwise noted, this content is licensed under a  
+     <a  href="http://creativecommons.org/licenses/by-nc/4.0/" title="External link to http://creativecommons.org/licenses/by-nc/4.0/" 
+       target="_blank">Creative Commons Attribution-NonCommercial 4.0 License
+     </a>
+     </p>
+    </div>
+  </div>   
+    
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-49703418-7']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>  </body>
+ </html>
