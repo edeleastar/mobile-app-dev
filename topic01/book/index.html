@@ -1,0 +1,566 @@
+ <!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+   
+     <title> Lab-01 </title>
+   
+     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+     <link rel="stylesheet" href="./style/semantic/css/semantic.min.css" type="text/css">  
+     <link rel="stylesheet" href="./style/custom/main.css" type="text/css"> 
+   
+     <script src="./style/custom/jquery-2.1.0.min.js"></script> 
+     <script src="./style/custom/jquery.address-1.6.min.js"></script>
+     <script src="./style/semantic/javascript/semantic.min.js"></script>
+   
+     <link rel="stylesheet" href="./style/highlight/school_book.css">
+     <script src="./style/highlight/highlight.pack.js"></script> 
+     <script>hljs.initHighlightingOnLoad();</script>
+   
+     <script src="./style/custom/common.js"> </script> 
+     <script src="./style/custom/main.js"> </script> 
+  </head>
+  <body>
+  <nav class="ui fixed top pointing borderless inverted menu">
+    <header class="header item"> <a href="../index.html">Unit Testing</a></header>
+    <div class="right tab-menu menu">
+          <a class="item" data-tab="Lab-01"> Lab-01 </a>
+          <a class="item" data-tab="01"> 01 </a>
+          <a class="item" data-tab="02"> 02 </a>
+          <a class="item" data-tab="03"> 03 </a>
+          <a class="item" data-tab="04"> 04 </a>
+          <a class="item" data-tab="05"> 05 </a>
+          <a class="item" data-tab="Exercises"> Exercises </a>
+    </div>
+  </nav>
+
+  <br>
+
+	  <section data-tab="Lab-01" class="ui tab stacked moodle-book segment">
+	     <h1>Objectives</h1>
+<ul>
+<li>Explore the Unit test features of Play</li>
+<li>Write some tests to verify the current behavior of the User and Message classes for the spacebook app.</li>
+<li>In the exercises, develop a set of unit tests for the wit-press blog.</li>
+</ul>
+	  </section>
+	  <section data-tab="01" class="ui tab stacked moodle-book segment">
+	     <h1>Simple Test Harness</h1>
+<p>You have seen until testing in Eclipse for simple Java applications. There is an equivalent for the Play Framework. Unit testing is particularly important if you make any changes to the model, as it allows you to verify if the model is defined correctly.</p>
+<p>Using your own spacebook project - or this solution to the second assignment from last semester:</p>
+<ul>
+<li><a href="archives/spacebook-assign-2.zip">spacebook-assign-2</a></li>
+</ul>
+<p>In eclipse, notice that you already have a 'test' folder, with some tests already in there:</p>
+<p><img alt="" src="img/01.png"></p>
+<p>Open the file 'BasicTest.java':</p>
+<pre><code class="java">import org.junit.*;
+import java.util.*;
+import play.test.*;
+import models.*;
+
+public class BasicTest extends UnitTest
+{
+  @Test
+  public void aVeryImportantThingToTest()
+  {
+    assertEquals(2, 1 + 1);
+  }
+}
+</code></pre>
+
+<p>Executing this is a little different from executing standard junit tests, and requires the following stages:</p>
+<h2>Stage 1: Run the spacebook app in 'test mode'</h2>
+<p>From the console, within the spacebook folder, run the app ass follows:</p>
+<pre><code>play test
+</code></pre>
+
+<p>This will respond as follows:</p>
+<pre><code>~        _            _ 
+~  _ __ | | __ _ _  _| |
+~ | '_ \| |/ _' | || |_|
+~ |  __/|_|\____|\__ (_)
+~ |_|            |__/   
+~
+~ play! 1.2.5, http://www.playframework.org
+~ framework ID is test
+~
+~ Running in test mode
+~ Ctrl+C to stop
+~ 
+CompilerOracle: exclude jregex/Pretokenizer.next
+Listening for transport dt_socket at address: 8000
+08:31:32,518 INFO  ~ Starting /Users/edeleastar/repos/modules/app-dev-modelling-prj/spacebook-3
+08:31:32,522 INFO  ~ Module cloudbees is available (/Users/edeleastar/repos/modules/app-dev-modelling-prj/spacebook-3/modules/cloudbees-0.2.2)
+08:31:32,523 INFO  ~ Module crud is available (/Users/edeleastar/dev/play-1.2.5/modules/crud)
+08:31:33,136 WARN  ~ You're running Play! in DEV mode
+~
+~ Go to http://localhost:9000/@tests to run the tests
+~
+08:31:33,242 INFO  ~ Listening for HTTP on port 9000 (Waiting a first request to start) ...
+</code></pre>
+
+<h2>Stage 2: Browse to the 'test runner'</h2>
+<p>In chrome, bring up a browser are the following url:</p>
+<ul>
+<li><a href="http://localhost:9000/@tests">http://localhost:9000/@tests</a></li>
+</ul>
+<p>This should show this:</p>
+<p><img alt="" src="img/02.png"></p>
+<p>Be careful here - we only want to select the 'BasicTest' - so click once on it, and the page will look like this:</p>
+<p><img alt="" src="img/03.png"></p>
+<h2>Stage 3: Run a successful Test</h2>
+<p>Now press 'Start' and note the changes in the page:</p>
+<p><img alt="" src="img/04.png"></p>
+<p>This has run the tests - but as the trivial test passed, then the page remained green.</p>
+<h2>Stage 4: Run a failing Test</h2>
+<p>Make a small change to the test such that it is guaranteed to fail:</p>
+<pre><code class="java">  public void aVeryImportantThingToTest()
+  {
+    assertEquals(3, 1 + 1);
+  }
+</code></pre>
+
+<p>Now run it again:</p>
+<p><img alt="" src="img/05.png"></p>
+<p>Note carefully the error report.</p>
+	  </section>
+	  <section data-tab="02" class="ui tab stacked moodle-book segment">
+	     <h1>Users Test</h1>
+<p>Lets write some test for the classes we already have working. Before we do so, there is an occasional anomaly in play that can cause some confusion. So, open 'app/default package/BootStrap.java' and comment out the following:</p>
+<pre><code class="java">import java.util.List;
+
+import play.*;
+import play.jobs.*;
+import play.test.*;
+
+import models.*;
+
+@OnApplicationStart
+public class Bootstrap extends Job 
+{ 
+  public void doJob()
+  {
+    //Fixtures.deleteDatabase();
+    //Fixtures.loadModels(&quot;data.yml&quot;);
+  }
+}
+</code></pre>
+
+<p>We are removing the objects loaded from the yaml file for the moment. Remember to put this back in when you are finished testing.</p>
+<p>Now introduce the following test into the BasicTest class:</p>
+<pre><code class="java">public class BasicTest extends UnitTest
+{
+  @Test
+  public void aVeryImportantThingToTest()
+  {
+    assertEquals(2, 1 + 1);
+  }
+
+  @Test
+  public void testCreateUser()
+  {
+    User bob = new User(&quot;bob&quot;, &quot;jones&quot;, 20, &quot;irish&quot;, &quot;bob@jones.com&quot;, &quot;secret&quot;);
+    bob.save();
+
+    User testUser = User.findByEmail(&quot;bob@jones.com&quot;);
+    assertNotNull (testUser);
+  }
+}
+</code></pre>
+
+<p>Look carefully at the 'testCreateUser()' test. In it we are creating a new user, saving it, and then seeing if we can find the user by the email address. Save and run this test.</p>
+<p>It should succeed. Now, make a deliberate mistake in the test - try find 'alice' instead of 'bob' by making the following adjustment:</p>
+<pre><code class="java">  @Test
+  public void testCreateUser()
+  {
+    User bob = new User(&quot;bob&quot;, &quot;jones&quot;, 20, &quot;irish&quot;, &quot;bob@jones.com&quot;, &quot;secret&quot;);
+    bob.save();
+
+    User testUser = User.findByEmail(&quot;alice@jones.com&quot;);
+    assertNotNull (testUser);
+  }
+</code></pre>
+
+<p>Run tests again, you should see something like this:</p>
+<p><img alt="" src="img/07.png"></p>
+<p>Change it back to 'bob' and confirm that the error is now gone.</p>
+	  </section>
+	  <section data-tab="03" class="ui tab stacked moodle-book segment">
+	     <h1>More User Tests</h1>
+<p>You may be surprised that, even if we are running in test mode, the 'admin' interface is still visible:</p>
+<ul>
+<li><a href="http://localhost:9000/@db">http://localhost:9000/@db</a></li>
+</ul>
+<p><img alt="" src="img/06.png"></p>
+<p>Explore the user objects now. You may notice that we seem to have more than one? If you look at the objects data - it appears that the same object 'bob' may be there several times.</p>
+<p>This is clearly an anomaly, and is the result of running the tests repeatedly - and having leftover values as a result. This should be corrected immediately as it is very important that the tests are not influenced by whatever may be in the database.</p>
+<p>Introduce the following method into BasicTest:</p>
+<pre><code class="java">  @BeforeClass
+  public static void loadDB()
+  {
+    Fixtures.deleteAllModels();
+  }
+</code></pre>
+
+<p>Now run the tests a few times - and keep an eye on the number of Users via the admin interface. There should always be only one.</p>
+<p>Introduce the following test:</p>
+<pre><code class="java">  @Test
+  public void testFindUser()
+  {
+    User jim = new User(&quot;jim&quot;, &quot;smith&quot;, 20, &quot;irish&quot;, &quot;jim@smith.com&quot;, &quot;secret&quot;);
+    jim.save();
+
+    User test = User.findByEmail(&quot;jim@smith.com&quot;);
+    assertNotNull (test);
+
+    User alice = User.findByEmail(&quot;alice@jones.com&quot;);
+    assertNull (alice);
+  }  
+</code></pre>
+
+<p>This is an example of a 'negative' test. We are deliberately looking for a user (alice) who we know to be not there. Run it and make sure it passes.</p>
+<p>Try to make the test deliberately fail?</p>
+	  </section>
+	  <section data-tab="04" class="ui tab stacked moodle-book segment">
+	     <h1>Message Tests</h1>
+<p>We have another model object called Messages already defined in our project:</p>
+<pre><code class="java">public class Message extends Model
+{
+  public String messageText;
+
+  @ManyToOne
+  public User from;
+
+  @ManyToOne
+  public User to;
+
+  public Message(User from, User to, String messageText)
+  {
+    this.from = from;
+    this.to = to;
+    this.messageText = messageText;
+  }
+}
+</code></pre>
+
+<p>We can write some tests to see if this model is set up correctly:</p>
+<pre><code class="java">  @Test
+  public void testCreateMessage()
+  {
+    User mary = new User(&quot;mary&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;mary@collins.com&quot;, &quot;secret&quot;);
+    mary.save();
+
+    User joan = new User(&quot;joan&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;joan@collins.com&quot;, &quot;secret&quot;);
+    joan.save();
+
+    Message msg = new Message (mary, joan, &quot;Hi there - how are you&quot;);
+    msg.save();
+
+    List&lt;Message&gt; joansMessages = Message.find(&quot;byTo&quot;, joan).fetch();
+    assertEquals (joansMessages.size(), 1);
+  }
+</code></pre>
+
+<p>Look carefully at the above test. It is structured as follows:</p>
+<ul>
+<li>Create a mary user object, and save it to the database</li>
+<li>Create a joan user object, and save it to the database</li>
+<li>Create a message object for a message from mary to joan</li>
+<li>Retrieve all of the messages for joan</li>
+<li>See if there is exactly one message</li>
+</ul>
+<p>Run this test now and see if it passes. We can extend the test to see if we also get back the correct text. Put these two lines at the end of the test:</p>
+<pre><code class="java">    Message message = joansMessages.get(0);
+    assertEquals(message.messageText, &quot;Hi there - how are you&quot;);
+</code></pre>
+
+<p>Run it again and confirm it still passes. Just to confirm that everything is operating ok with the test harness, change a single character in the message, and make sure the test fails. Then change it back so that is passes again.</p>
+<p>To conclude, we bring in some more tests to:</p>
+<ul>
+<li>test for the case when there are no message for a given user</li>
+<li>test for the case when there are more than one message for a given user</li>
+</ul>
+<p>Here are the tests - bring these directly into your class:</p>
+<pre><code class="java">  @Test
+  public void testNoMessagese()
+  {
+    User mary = new User(&quot;mary&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;mary@collins.com&quot;, &quot;secret&quot;);
+    mary.save();
+
+    List&lt;Message&gt; joansMessages = Message.find(&quot;byTo&quot;, mary).fetch();
+    assertEquals (joansMessages.size(), 0);
+  }
+
+  @Test
+  public void testMultipleMessages()
+  {
+    User mary = new User(&quot;mary&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;mary@collins.com&quot;, &quot;secret&quot;);
+    mary.save();
+
+    User joan = new User(&quot;joan&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;joan@collins.com&quot;, &quot;secret&quot;);
+    joan.save();
+
+    Message msg1 = new Message (mary, joan, &quot;Hi there - how are you&quot;);
+    msg1.save();
+    Message msg2 = new Message (mary, joan, &quot;Where are you now?&quot;);
+    msg2.save();
+
+    List&lt;Message&gt; joansMessages = Message.find(&quot;byTo&quot;, joan).fetch();
+    assertEquals (joansMessages.size(), 2);
+    Message message1 = joansMessages.get(0);
+    assertEquals(message1.messageText, &quot;Hi there - how are you&quot;);
+    Message message2 = joansMessages.get(1);
+    assertEquals(message2.messageText, &quot;Where are you now?&quot;);   
+  }
+</code></pre>
+
+<p>Read the tests and absorb what they are testing. These tests should all pass</p>
+	  </section>
+	  <section data-tab="05" class="ui tab stacked moodle-book segment">
+	     <h1>Class Specific Tests</h1>
+<p>Our complete test case now looks like this:</p>
+<pre><code class="java">import org.junit.*;
+
+import java.util.*;
+
+import play.test.*;
+import models.*;
+
+public class BasicTest extends UnitTest
+{
+
+  @BeforeClass
+  public static void loadDB()
+  {
+    Fixtures.deleteAllModels();
+  }
+
+  @Test
+  public void testCreateUser()
+  {
+    User bob = new User(&quot;bob&quot;, &quot;jones&quot;, 20, &quot;irish&quot;, &quot;bob@jones.com&quot;, &quot;secret&quot;);
+    bob.save();
+
+    User testUser = User.findByEmail(&quot;bob@jones.com&quot;);
+    assertNotNull (testUser);
+  }
+
+  @Test
+  public void testFindUser()
+  {
+    User jim = new User(&quot;jim&quot;, &quot;smith&quot;, 20, &quot;irish&quot;, &quot;jim@smith.com&quot;, &quot;secret&quot;);
+    jim.save();
+
+    User test = User.findByEmail(&quot;jim@smith.com&quot;);
+    assertNotNull (test);
+
+    User alice = User.findByEmail(&quot;alice@jones.com&quot;);
+    assertNull (alice);
+  }  
+
+  @Test
+  public void testCreateMessage()
+  {
+    User mary = new User(&quot;mary&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;mary@collins.com&quot;, &quot;secret&quot;);
+    mary.save();
+
+    User joan = new User(&quot;joan&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;joan@collins.com&quot;, &quot;secret&quot;);
+    joan.save();
+
+    Message msg = new Message (mary, joan, &quot;Hi there - how are you&quot;);
+    msg.save();
+
+    List&lt;Message&gt; joansMessages = Message.find(&quot;byTo&quot;, joan).fetch();
+    assertEquals (joansMessages.size(), 1);
+  }
+
+  @Test
+  public void testNoMessagese()
+  {
+    User mary = new User(&quot;mary&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;mary@collins.com&quot;, &quot;secret&quot;);
+    mary.save();
+
+    List&lt;Message&gt; joansMessages = Message.find(&quot;byTo&quot;, mary).fetch();
+    assertEquals (joansMessages.size(), 0);
+  }
+
+  @Test
+  public void testMultipleMessages()
+  {
+    User mary = new User(&quot;mary&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;mary@collins.com&quot;, &quot;secret&quot;);
+    mary.save();
+
+    User joan = new User(&quot;joan&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;joan@collins.com&quot;, &quot;secret&quot;);
+    joan.save();
+
+    Message msg1 = new Message (mary, joan, &quot;Hi there - how are you&quot;);
+    msg1.save();
+    Message msg2 = new Message (mary, joan, &quot;Where are you now?&quot;);
+    msg2.save();
+
+    List&lt;Message&gt; joansMessages = Message.find(&quot;byTo&quot;, joan).fetch();
+    assertEquals (joansMessages.size(), 2);
+    Message message1 = joansMessages.get(0);
+    assertEquals(message1.messageText, &quot;Hi there - how are you&quot;);
+    Message message2 = joansMessages.get(1);
+    assertEquals(message2.messageText, &quot;Where are you now?&quot;);   
+  }
+}
+</code></pre>
+
+<p>This mixes in User and Message tests. We can factor these out into classes of their own. In the same package, create a class call UserTest containing the following:</p>
+<pre><code class="java">import org.junit.*;
+
+import java.util.*;
+
+import play.test.*;
+import models.*;
+
+public class UserTest extends UnitTest
+{
+
+  @BeforeClass
+  public static void loadDB()
+  {
+    Fixtures.deleteAllModels();
+  }
+
+  @Test
+  public void testCreateUser()
+  {
+    User bob = new User(&quot;bob&quot;, &quot;jones&quot;, 20, &quot;irish&quot;, &quot;bob@jones.com&quot;, &quot;secret&quot;);
+    bob.save();
+
+    User testUser = User.findByEmail(&quot;bob@jones.com&quot;);
+    assertNotNull (testUser);
+  }
+
+  @Test
+  public void testFindUser()
+  {
+    User jim = new User(&quot;jim&quot;, &quot;smith&quot;, 20, &quot;irish&quot;, &quot;jim@smith.com&quot;, &quot;secret&quot;);
+    jim.save();
+
+    User test = User.findByEmail(&quot;jim@smith.com&quot;);
+    assertNotNull (test);
+
+    User alice = User.findByEmail(&quot;alice@jones.com&quot;);
+    assertNull (alice);
+  }  
+}
+</code></pre>
+
+<p>and a MessageTest class:</p>
+<pre><code class="java">import org.junit.*;
+
+import java.util.*;
+
+import play.test.*;
+import models.*;
+
+public class MessageTest extends UnitTest
+{
+  @BeforeClass
+  public static void loadDB()
+  {
+    Fixtures.deleteAllModels();
+  } 
+
+  @Test
+  public void testCreateMessage()
+  {
+    User mary = new User(&quot;mary&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;mary@collins.com&quot;, &quot;secret&quot;);
+    mary.save();
+
+    User joan = new User(&quot;joan&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;joan@collins.com&quot;, &quot;secret&quot;);
+    joan.save();
+
+    Message msg = new Message (mary, joan, &quot;Hi there - how are you&quot;);
+    msg.save();
+
+    List&lt;Message&gt; joansMessages = Message.find(&quot;byTo&quot;, joan).fetch();
+    assertEquals (joansMessages.size(), 1);
+  }
+
+  @Test
+  public void testNoMessagese()
+  {
+    User mary = new User(&quot;mary&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;mary@collins.com&quot;, &quot;secret&quot;);
+    mary.save();
+
+    List&lt;Message&gt; joansMessages = Message.find(&quot;byTo&quot;, mary).fetch();
+    assertEquals (joansMessages.size(), 0);
+  }
+
+  @Test
+  public void testMultipleMessages()
+  {
+    User mary = new User(&quot;mary&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;mary@collins.com&quot;, &quot;secret&quot;);
+    mary.save();
+
+    User joan = new User(&quot;joan&quot;, &quot;colllins&quot;, 20, &quot;irish&quot;, &quot;joan@collins.com&quot;, &quot;secret&quot;);
+    joan.save();
+
+    Message msg1 = new Message (mary, joan, &quot;Hi there - how are you&quot;);
+    msg1.save();
+    Message msg2 = new Message (mary, joan, &quot;Where are you now?&quot;);
+    msg2.save();
+
+    List&lt;Message&gt; joansMessages = Message.find(&quot;byTo&quot;, joan).fetch();
+    assertEquals (joansMessages.size(), 2);
+    Message message1 = joansMessages.get(0);
+    assertEquals(message1.messageText, &quot;Hi there - how are you&quot;);
+    Message message2 = joansMessages.get(1);
+    assertEquals(message2.messageText, &quot;Where are you now?&quot;);   
+  }
+
+}
+</code></pre>
+
+<p>Each of these classes is just focused primarily on one of the model classes. You can delete the BasicTest, so your project should look like this:</p>
+<p><img alt="" src="img/08.png"></p>
+<p>And refreshing the test runner site:</p>
+<p><img alt="" src="img/09.png"></p>
+<p>Finally, if we select and run the tests - we can see an individual breakdown of each test:</p>
+<p><img alt="" src="img/10.png"></p>
+<p>Just to confirm that everything is going ok - deliberately break one of the test to see the type of report:</p>
+<p><img alt="" src="img/11.png"></p>
+<p>Revert to 'green state' again by making all tests work</p>
+	  </section>
+	  <section data-tab="Exercises" class="ui tab stacked moodle-book segment">
+	     <h1>Exercises</h1>
+<p>The witpress-v2 app, completed during the summer school, implements a simple blogging app with comments. You may have this app in your workspace. If not, this is the archive here:</p>
+<ul>
+<li><a href="archives/witpress-v2.zip">witpress-v2.zip</a></li>
+</ul>
+<h2>Exercise 1:</h2>
+<p>Your task is to implement a comprehensive set of unit tests to fully exercise the model classes. The following screen capture is and example of the type of tests you should attempt to implement:</p>
+<p><img alt="" src="img/12.png"></p>
+<p>You should have sufficient guidance from this lab to complete these tests. Note that the test names indicate approximately the focus on each of the tests.</p>
+<p>The PostTests are a little different in that they exercise features form the collection library - rather than the model classes themselves. I.e. they represent tests that are focused not so much on your classes, but on verifying your understanding of how some library classes work.</p>
+<h2>Exercise 2:</h2>
+<p>Currently the relationships between User and Post, and Post and Comments are navigable in a single direction. Make both of these navigable in both directions. This can be achieved by introducing a many to one relationship to match toe one to many.</p>
+<p>Verify that this addition does not break any existing tests, and write some new tests to verify that the relationships are correctly implemented.</p>
+<h2>Exercise 3:</h2>
+<p>Currently a Blog is not modeled - a blog just a collection of posts. Model a Blog as a first class object, developing tests to verify the implementation as you go. Do this in two versions:</p>
+<ul>
+<li>Each user can have a single blog.</li>
+<li>Each user may have zero or more blogs</li>
+</ul>
+<p>Dont worry about the UI, just focus on the tests</p>
+	  </section>
+  <div class="ui fixed bottom borderless menu">'
+    <div class="ui small item"> 
+    <p id="footertext">
+    Prepared by  . Except where otherwise noted, this content is licensed under a  
+     <a  href="http://creativecommons.org/licenses/by-nc/4.0/" title="External link to http://creativecommons.org/licenses/by-nc/4.0/" 
+       target="_blank">Creative Commons Attribution-NonCommercial 4.0 License
+     </a>
+     </p>
+    </div>
+  </div>   
+    
+  </body>
+ </html>
